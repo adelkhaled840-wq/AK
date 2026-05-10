@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html id="html-root" lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إشعار دائن | Credit Note</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --blue:#1a5fa8;--blue-dark:#0d4480;--blue-light:#e8f0fb;--blue-mid:#3a7bc8;
+  --green:#0e6e52;--green-light:#e2f5ee;
+  --red:#b83232;--red-light:#fdeaea;
+  --amber:#92560a;--amber-light:#fef3e2;
+  --g50:#f8f8f6;--g100:#f0efec;--g200:#e2e1dc;--g300:#c8c7c0;
+  --g400:#9a9890;--g600:#5a5854;--g700:#3e3c38;--g800:#2c2b28;--g900:#1a1918;
+  --white:#fff;
+  --sw:230px;
+  --font:'IBM Plex Sans Arabic',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --r:8px;--rl:12px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shm:0 4px 14px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:100vh;display:flex;font-size:14px;line-height:1.6}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--g900);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;right:0;bottom:0;z-index:100;overflow-y:auto}
+html[dir=ltr] .sidebar{right:auto;left:0}
+.sb-logo{padding:18px 14px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand{display:flex;align-items:center;gap:10px}
+.sb-icon{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+.sb-name{font-size:14px;font-weight:600;color:#fff;line-height:1.2}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.35);font-family:var(--mono);letter-spacing:.4px}
+.sb-section{padding:14px 10px 6px}
+.sb-label{font-size:10px;font-weight:500;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:1px;padding:0 6px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);color:rgba(255,255,255,.5);cursor:pointer;font-size:13px;transition:all .15s;border:none;background:none;width:100%;text-align:right;font-family:var(--font)}
+html[dir=ltr] .nav-item{text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.nav-item.active{background:var(--blue);color:#fff}
+.nav-item i{font-size:17px;flex-shrink:0}
+.nav-badge{margin-right:auto;background:var(--blue-mid);color:#fff;font-size:10px;padding:1px 7px;border-radius:20px;font-family:var(--mono)}
+html[dir=ltr] .nav-badge{margin-right:0;margin-left:auto}
+.sb-footer{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:rgba(255,255,255,.2);text-align:center;font-family:var(--mono)}
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-switcher{padding:10px 12px;display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.07)}
+.lang-btn{flex:1;padding:5px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:none;color:rgba(255,255,255,.45);font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
+.lang-btn:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.8)}
+.lang-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.lang-label{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.8px;padding:8px 12px 4px;display:block}
+
+/* ── SERIAL SETTINGS PANEL ── */
+.serial-panel{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.serial-panel-title{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.serial-row{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.serial-lbl{font-size:10px;color:rgba(255,255,255,.4);flex-shrink:0;width:50px}
+.serial-inp{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:5px;color:#fff;font-family:var(--mono);font-size:11px;padding:4px 7px;width:100%}
+.serial-inp:focus{outline:none;border-color:var(--blue-mid)}
+.serial-preview{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.55);padding:5px 8px;background:rgba(255,255,255,.05);border-radius:5px;border:1px solid rgba(255,255,255,.08);margin-top:3px;word-break:break-all}
+.serial-apply{width:100%;margin-top:5px;padding:5px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-family:var(--font);font-size:11px;cursor:pointer;transition:all .15s}
+.serial-apply:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ── MAIN ── */
+.main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-width:0}
+html[dir=ltr] .main{margin-right:0;margin-left:var(--sw)}
+.topbar{background:var(--white);border-bottom:1px solid var(--g200);padding:0 22px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-left{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--g400)}
+.tb-left .cur{color:var(--g800);font-weight:500}
+.tb-right{display:flex;align-items:center;gap:8px}
+.cn-num-badge{font-family:var(--mono);font-size:12px;background:var(--g100);border:1px solid var(--g200);padding:3px 10px;border-radius:20px;color:var(--g600)}
+.status-badge{font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;font-family:var(--mono)}
+.st-draft{background:var(--amber-light);color:var(--amber);border:1px solid #f5cc88}
+.st-saved{background:var(--blue-light);color:var(--blue-dark);border:1px solid #c4d9f5}
+.st-issued{background:var(--green-light);color:var(--green);border:1px solid #b5e0d0}
+
+/* ── PAGES ── */
+.page{padding:20px 22px;display:none}
+.page.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.pt{font-size:17px;font-weight:600;color:var(--g900)}
+.pt small{display:block;font-size:12px;color:var(--g400);font-weight:400;margin-top:1px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--g300);background:var(--white);color:var(--g700);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{background:var(--g50);border-color:var(--g400)}
+.btn:active{transform:scale(.98)}
+.btn i{font-size:15px}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-sm i{font-size:13px}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-success{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-success:hover{background:#0a5040}
+.btn-danger{background:var(--red-light);color:var(--red);border-color:#f5c2c2}
+.btn-danger:hover{background:#fad5d5}
+.btn-print{background:var(--g900);color:#fff;border-color:var(--g900)}
+.btn-print:hover{background:#333}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);padding:16px;margin-bottom:13px;box-shadow:var(--sh)}
+.ct{font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ct i{font-size:14px;color:var(--blue)}
+
+/* ── FORM ── */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.lbl{font-size:11px;font-weight:600;color:var(--g600)}
+.fc{font-family:var(--font);font-size:13px;padding:7px 10px;border-radius:var(--r);border:1px solid var(--g200);background:var(--white);color:var(--g800);width:100%;transition:border-color .15s,box-shadow .15s}
+.fc:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,95,168,.1)}
+.fc[readonly]{background:var(--g50);color:var(--g400)}
+textarea.fc{resize:vertical;min-height:68px;line-height:1.5}
+select.fc{cursor:pointer}
+.divider{border:none;border-top:1px solid var(--g100);margin:14px 0}
+
+/* ── LOGO UPLOAD ── */
+.logo-up{border:2px dashed var(--g200);border-radius:var(--rl);padding:13px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--g50)}
+.logo-up:hover{border-color:var(--blue);background:var(--blue-light)}
+.logo-ph{width:56px;height:56px;border-radius:var(--r);background:var(--blue-light);display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:22px;flex-shrink:0}
+.logo-prev{width:56px;height:56px;border-radius:var(--r);object-fit:contain;border:1px solid var(--g200);background:#fff;display:none;flex-shrink:0}
+
+/* ── ALERT ── */
+.alert{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:var(--r);font-size:13px;margin-bottom:13px}
+.alert i{font-size:17px;flex-shrink:0}
+.al-info{background:var(--blue-light);color:var(--blue-dark);border:1px solid #c4d9f5}
+.al-ok{background:var(--green-light);color:var(--green);border:1px solid #b5e0d0}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--g200)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--g50)}
+th{text-align:right;padding:8px 10px;font-weight:600;font-size:10.5px;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200);white-space:nowrap}
+html[dir=ltr] th{text-align:left}
+td{padding:6px 10px;border-bottom:1px solid var(--g100);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--g50)}
+td input,td select{font-family:var(--font);font-size:12px;padding:4px 7px;border-radius:6px;border:1px solid var(--g200);background:#fff;color:var(--g800);width:100%;transition:border-color .15s}
+td input:focus,td select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,95,168,.1)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--g300);font-size:15px;padding:3px 5px;border-radius:5px;transition:all .15s}
+.del-btn:hover{background:var(--red-light);color:var(--red)}
+.add-ln{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-size:13px;color:var(--blue);background:none;border:none;cursor:pointer;padding:8px 2px;font-weight:500}
+.add-ln:hover{opacity:.7}
+
+/* ── TOTALS ── */
+.tot-layout{display:grid;grid-template-columns:1fr 305px;gap:18px;margin-top:6px;align-items:start}
+.tot-box{background:var(--g50);border:1px solid var(--g200);border-radius:var(--rl);overflow:hidden}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;font-size:13px;border-bottom:1px solid var(--g100)}
+.trow:last-child{border-bottom:none}
+.tl{color:var(--g400);font-size:12px}.tv{font-weight:600;font-family:var(--mono);font-size:13px}
+.trow.grand{background:var(--blue);border-bottom:none}
+.trow.grand .tl{color:rgba(255,255,255,.8);font-weight:600;font-size:13px}
+.trow.grand .tv{color:#fff;font-size:15px}
+.trow.disc .tv{color:var(--red)}
+
+/* ── CLIENTS ── */
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:14px}
+.cl-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rl);padding:15px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:9px;transition:box-shadow .15s,border-color .15s}
+.cl-card:hover{box-shadow:var(--shm);border-color:var(--g300)}
+.cl-hd{display:flex;align-items:center;gap:11px}
+.cl-av{width:40px;height:40px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.cl-n{font-size:14px;font-weight:600;color:var(--g900)}
+.cl-s{font-size:12px;color:var(--g400)}
+.cl-meta{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--g600)}
+.cl-meta span{display:flex;align-items:center;gap:5px}
+.cl-meta i{font-size:13px;color:var(--g300)}
+.cl-ft{display:flex;gap:6px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--g100)}
+.cl-form{background:var(--white);border:1px solid var(--g200);border-top:3px solid var(--blue);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:var(--shm);display:none}
+.cl-form.open{display:block}
+.cfh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cft{font-size:15px;font-weight:600;color:var(--g900)}
+.empty{text-align:center;padding:50px 20px;color:var(--g400)}
+.empty i{font-size:46px;display:block;margin-bottom:10px;color:var(--g300)}
+.empty p{font-size:13px}
+
+/* ── FOOTER ── */
+.footer-bar{display:flex;gap:8px;justify-content:flex-end;align-items:center;padding:14px 22px;background:var(--white);border-top:1px solid var(--g200);position:sticky;bottom:0;z-index:40}
+
+/* ══ PRINT ══ */
+@media print{
+  @page{size:A4 portrait;margin:0}
+  body{background:#fff!important;display:block}
+  .sidebar,.topbar,.footer-bar,.page,.no-print{display:none!important}
+  #print-area{display:block!important}
+}
+
+#print-area{
+  display:none;
+  font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:11px;color:#1a1918;line-height:1.5;
+  width:210mm;min-height:297mm;background:#fff;
+}
+/* Print area RTL/LTR */
+#print-area.ltr{direction:ltr;text-align:left}
+#print-area.rtl{direction:rtl;text-align:right}
+
+.p-header{background:#1a5fa8;padding:16px 22px;display:flex;align-items:center;justify-content:space-between}
+.p-logo-wrap{display:flex;align-items:center;gap:12px}
+.p-logo-box{width:50px;height:50px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;overflow:hidden;flex-shrink:0}
+.p-logo-box img{width:100%;height:100%;object-fit:contain}
+.p-co-name{font-size:16px;font-weight:700;color:#fff;line-height:1.2}
+.p-co-sub{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px}
+.p-title-block{text-align:left}
+#print-area.rtl .p-title-block{text-align:right}
+.p-title-main{font-size:18px;font-weight:700;color:#fff;letter-spacing:.5px}
+.p-title-sub{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px}
+
+.p-strip{background:#edf3fc;border-bottom:1px solid #c8d8f0;padding:9px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.p-si{display:flex;flex-direction:column;gap:1px}
+.p-sl{font-size:9px;color:#6a7fa8;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.p-sv{font-size:12px;font-weight:700;color:#0d4480;font-family:'IBM Plex Mono',monospace}
+
+.p-parties{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e2e1dc}
+.p-party{padding:13px 22px}
+.p-party:first-child{border-left:1px solid #e2e1dc}
+#print-area.ltr .p-party:first-child{border-left:none;border-right:1px solid #e2e1dc}
+.p-ptitle{font-size:9px;font-weight:700;color:#1a5fa8;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;display:flex;align-items:center;gap:4px}
+.p-pname{font-size:13px;font-weight:700;color:#1a1918;margin-bottom:5px}
+.p-prow{font-size:10px;color:#5a5854;display:flex;gap:4px;margin-bottom:2px;flex-wrap:wrap}
+.p-prow b{color:#9a9890;font-weight:500}
+
+.p-table-wrap{padding:0 22px;margin-top:12px}
+.p-table{width:100%;border-collapse:collapse;font-size:10.5px}
+.p-table thead tr{background:#1a5fa8}
+.p-table th{padding:6px 7px;color:#fff;font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:.4px;text-align:right}
+#print-area.ltr .p-table th{text-align:left}
+.p-table td{padding:5px 7px;border-bottom:1px solid #f0efec;text-align:right}
+#print-area.ltr .p-table td{text-align:left}
+.p-table tbody tr:nth-child(even){background:#f8f8f6}
+.p-table td.num{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.p-table td.center{text-align:center}
+
+.p-totals{padding:8px 22px 4px;display:flex;justify-content:flex-end}
+.p-tbox{width:270px}
+.p-trow{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid #f0efec}
+.p-trow .pl{color:#5a5854}.p-trow .pv{font-weight:600;font-family:'IBM Plex Mono',monospace}
+.p-trow.disc .pv{color:#b83232}
+.p-trow.grand{background:#1a5fa8;border-radius:7px;padding:7px 11px;margin-top:5px;border:none}
+.p-trow.grand .pl{color:rgba(255,255,255,.8);font-weight:600;font-size:12px}
+.p-trow.grand .pv{color:#fff;font-size:14px}
+
+.p-notes{padding:8px 22px;font-size:10.5px;color:#5a5854}
+.p-notes strong{color:#1a5fa8;display:block;margin-bottom:2px;font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+
+.p-footer{background:#1a5fa8;padding:9px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.p-ftxt{font-size:9px;color:rgba(255,255,255,.6)}
+.p-fnum{font-size:10px;font-weight:600;color:rgba(255,255,255,.9);font-family:'IBM Plex Mono',monospace}
+
+@media(max-width:860px){:root{--sw:0px}.sidebar{display:none}.g3,.g4{grid-template-columns:repeat(2,1fr)}.tot-layout{grid-template-columns:1fr}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}.page{padding:13px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand">
+      <div class="sb-icon"><i class="ti ti-file-invoice"></i></div>
+      <div>
+        <div class="sb-name" id="sb-name">NovaERP</div>
+        <div class="sb-sub">Credit Notes · v2.0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANGUAGE SWITCHER -->
+  <div style="padding:8px 12px 4px">
+    <span class="lang-label" id="sb-lang-title">🌐 لغة الواجهة / Interface Language</span>
+    <div class="lang-switcher" style="padding:0;border:none;gap:4px">
+      <button class="lang-btn active" id="lb-ar" onclick="setLang('ar')" title="عربي فقط">عربي</button>
+      <button class="lang-btn" id="lb-both" onclick="setLang('both')" title="Arabic & English">AR / EN</button>
+      <button class="lang-btn" id="lb-en" onclick="setLang('en')" title="English Only">English</button>
+    </div>
+  </div>
+
+  <!-- SERIAL NUMBER PANEL -->
+  <div class="serial-panel">
+    <div class="serial-panel-title" id="sb-serial-title">⚙ ترقيم الإشعار / Serial Settings</div>
+    <div class="serial-row">
+      <span class="serial-lbl" id="lbl-prefix">البادئة</span>
+      <input class="serial-inp" id="ser-prefix" value="CN" maxlength="10" oninput="updateSerialPreview()">
+    </div>
+    <div class="serial-row">
+      <span class="serial-lbl" id="lbl-year">السنة</span>
+      <input class="serial-inp" id="ser-year" value="2026" maxlength="4" oninput="updateSerialPreview()">
+    </div>
+    <div class="serial-row">
+      <span class="serial-lbl" id="lbl-number">الرقم</span>
+      <input class="serial-inp" id="ser-num" type="number" value="42" min="1" oninput="updateSerialPreview()">
+    </div>
+    <div class="serial-row">
+      <span class="serial-lbl" id="lbl-digits">أرقام</span>
+      <select class="serial-inp" id="ser-digits" onchange="updateSerialPreview()">
+        <option value="1">بدون padding</option>
+        <option value="3">3 أرقام (001)</option>
+        <option value="4" selected>4 أرقام (0042)</option>
+        <option value="5">5 أرقام (00042)</option>
+      </select>
+    </div>
+    <div class="serial-row">
+      <span class="serial-lbl" id="lbl-sep">فاصل</span>
+      <select class="serial-inp" id="ser-sep" onchange="updateSerialPreview()">
+        <option value="-">شرطة (CN-2026-0042)</option>
+        <option value="/">/  (CN/2026/0042)</option>
+        <option value=".">نقطة (CN.2026.0042)</option>
+        <option value="">بدون (CN20260042)</option>
+      </select>
+    </div>
+    <div class="serial-preview" id="ser-preview">CN-2026-0042</div>
+    <button class="serial-apply" onclick="applySerial()" id="btn-apply-serial">✓ تطبيق / Apply</button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label" id="sb-nav-label">القوائم / Menu</div>
+    <button class="nav-item active" onclick="showPage('page-cn',this)">
+      <i class="ti ti-file-invoice"></i> <span data-ar="إشعار دائن" data-en="Credit Note" data-both="إشعار دائن / Credit Note"></span>
+    </button>
+    <button class="nav-item" onclick="showPage('page-clients',this)">
+      <i class="ti ti-users"></i> <span data-ar="العملاء" data-en="Clients" data-both="العملاء / Clients"></span>
+      <span class="nav-badge" id="nav-cnt">0</span>
+    </button>
+    <button class="nav-item" onclick="showPage('page-company',this)">
+      <i class="ti ti-building"></i> <span data-ar="شركتي" data-en="My Company" data-both="شركتي / My Company"></span>
+    </button>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label" id="sb-actions-label">الإجراءات / Actions</div>
+    <button class="nav-item" onclick="doPrint()">
+      <i class="ti ti-printer"></i> <span data-ar="طباعة PDF" data-en="Print PDF" data-both="طباعة / Print PDF"></span>
+    </button>
+    <button class="nav-item" onclick="confirmNote()">
+      <i class="ti ti-check"></i> <span data-ar="إصدار الإشعار" data-en="Issue Note" data-both="إصدار / Issue"></span>
+    </button>
+  </div>
+  <div class="sb-footer">© 2026 NovaERP</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <i class="ti ti-layout-sidebar-right" style="font-size:17px;color:var(--g300)"></i>
+      <span data-ar="المبيعات" data-en="Sales" data-both="المبيعات / Sales">المبيعات</span>
+      <i class="ti ti-chevron-left" style="font-size:13px" id="breadcrumb-arrow"></i>
+      <span class="cur" id="tb-section">إشعار دائن جديد</span>
+    </div>
+    <div class="tb-right">
+      <span class="cn-num-badge" id="cn-num-display">CN-2026-0042</span>
+      <span class="status-badge st-draft" id="status-badge">Draft</span>
+    </div>
+  </div>
+
+  <!-- SYNC STATUS BAR -->
+  <div style="background:var(--g50);border-bottom:1px solid var(--g100);padding:4px 22px;display:flex;align-items:center;justify-content:space-between">
+    <span id="sync-status" style="font-size:11px;color:var(--g400);font-family:var(--mono)">—</span>
+    <button onclick="if(sbConfigured){markDirty();syncLoop();}else{alert('أضف Supabase URL و KEY أولاً في الكود');}" style="font-size:10px;background:none;border:1px solid var(--g200);border-radius:5px;padding:2px 8px;cursor:pointer;color:var(--g400);font-family:var(--font)">🔄 مزامنة</button>
+  </div>
+
+  <!-- ══ PAGE: CREDIT NOTE ══ -->
+  <div class="page active" id="page-cn">
+    <div class="ph">
+      <div>
+        <div class="pt" id="page-cn-title">إشعار دائن — Credit Note
+          <small id="page-cn-sub">أنشئ إشعاراً لخصم مبلغ من رصيد العميل</small>
+        </div>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn-print" onclick="doPrint()"><i class="ti ti-printer"></i> <span data-ar="طباعة PDF" data-en="Print PDF" data-both="طباعة / Print PDF">طباعة PDF</span></button>
+        <button class="btn btn-success" onclick="confirmNote()"><i class="ti ti-check"></i> <span data-ar="إصدار" data-en="Issue" data-both="إصدار / Issue">إصدار</span></button>
+      </div>
+    </div>
+
+    <div class="alert al-info" id="main-alert">
+      <i class="ti ti-info-circle"></i>
+      <span id="alert-text">هذا الإشعار سيُخصم من رصيد العميل أو يُسوَّى مع الفاتورة المحددة.</span>
+    </div>
+
+    <div class="card">
+      <div class="ct"><i class="ti ti-file-description"></i> <span data-ar="بيانات الإشعار" data-en="Note Details" data-both="بيانات الإشعار / Note Details">بيانات الإشعار</span></div>
+      <div style="display:flex;gap:13px;align-items:flex-start;margin-bottom:12px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:62px">
+          <div id="cn-logo-ph" style="width:54px;height:54px;border-radius:var(--r);background:var(--blue-light);display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:22px"><i class="ti ti-building-skyscraper"></i></div>
+          <img id="cn-logo-img" src="" alt="" style="display:none;width:54px;height:54px;border-radius:var(--r);object-fit:contain;border:1px solid var(--g200)">
+          <div id="cn-co-lbl" style="font-size:10px;font-weight:500;color:var(--g400);text-align:center;max-width:62px;word-break:break-word"></div>
+        </div>
+        <div style="flex:1">
+          <div class="g3" style="margin-bottom:10px">
+            <div class="fg">
+              <label class="lbl"><span data-ar="الشركة المُصدِرة" data-en="Issuer" data-both="الشركة المُصدِرة / Issuer">الشركة المُصدِرة</span></label>
+              <input class="fc" id="cn-coname" readonly placeholder="—">
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="العميل *" data-en="Client *" data-both="العميل / Client *">العميل *</span></label>
+              <select class="fc" id="cn-client-sel"><option value="">—</option></select>
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="رقم الإشعار" data-en="Note No." data-both="رقم الإشعار / Note No.">رقم الإشعار</span></label>
+              <input class="fc" id="cn-num-field" value="CN-2026-0042" readonly>
+            </div>
+          </div>
+          <div class="g4">
+            <div class="fg">
+              <label class="lbl"><span data-ar="الفاتورة المرجعية" data-en="Ref. Invoice" data-both="الفاتورة / Ref. Invoice">الفاتورة المرجعية</span></label>
+              <select class="fc">
+                <option value="">—</option>
+                <option>INV-2026-0215</option>
+                <option>INV-2026-0198</option>
+                <option>INV-2026-0172</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="التاريخ" data-en="Date" data-both="التاريخ / Date">التاريخ</span></label>
+              <input type="date" class="fc" id="cn-date" value="2026-05-10">
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="السبب" data-en="Reason" data-both="السبب / Reason">السبب</span></label>
+              <select class="fc" id="cn-reason">
+                <option data-ar="إرجاع بضاعة" data-en="Return" data-both="إرجاع / Return">إرجاع بضاعة</option>
+                <option data-ar="خصم تجاري" data-en="Trade Discount" data-both="خصم / Trade Discount">خصم تجاري</option>
+                <option data-ar="تعديل سعر" data-en="Price Adjustment" data-both="تعديل سعر / Price Adjustment">تعديل سعر</option>
+                <option data-ar="خطأ في الفاتورة" data-en="Invoice Error" data-both="خطأ / Invoice Error">خطأ في الفاتورة</option>
+                <option data-ar="أخرى" data-en="Other" data-both="أخرى / Other">أخرى</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="العملة" data-en="Currency" data-both="العملة / Currency">العملة</span></label>
+              <select class="fc" id="curr-sel" onchange="calcTotals()">
+                <option value="SAR">ريال سعودي — SAR</option>
+                <option value="EGP">جنيه مصري — EGP</option>
+                <option value="AED">درهم — AED</option>
+                <option value="USD">دولار — USD</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><i class="ti ti-list"></i> <span data-ar="بنود الإشعار" data-en="Line Items" data-both="بنود الإشعار / Line Items">بنود الإشعار</span></div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th style="width:30px">#</th>
+            <th><span data-ar="المنتج / الخدمة" data-en="Item / Service" data-both="المنتج / Item">المنتج / الخدمة</span></th>
+            <th style="width:110px"><span data-ar="الوصف" data-en="Description" data-both="الوصف / Desc">الوصف</span></th>
+            <th style="width:68px"><span data-ar="الكمية" data-en="Qty" data-both="الكمية / Qty">الكمية</span></th>
+            <th style="width:98px"><span data-ar="سعر الوحدة" data-en="Unit Price" data-both="سعر / Unit Price">سعر الوحدة</span></th>
+            <th style="width:70px"><span data-ar="خصم %" data-en="Disc%" data-both="خصم / Disc%">خصم %</span></th>
+            <th style="width:70px"><span data-ar="ضريبة %" data-en="Tax%" data-both="ضريبة / Tax%">ضريبة %</span></th>
+            <th style="width:98px"><span data-ar="الإجمالي" data-en="Total" data-both="الإجمالي / Total">الإجمالي</span></th>
+            <th style="width:32px"></th>
+          </tr></thead>
+          <tbody id="lines-body"></tbody>
+        </table>
+      </div>
+      <button class="add-ln" onclick="addLine()"><i class="ti ti-plus"></i> <span data-ar="إضافة بند" data-en="Add Line" data-both="إضافة بند / Add Line">إضافة بند</span></button>
+      <div class="divider"></div>
+      <div class="tot-layout">
+        <div class="fg">
+          <label class="lbl"><span data-ar="ملاحظات" data-en="Notes" data-both="ملاحظات / Notes">ملاحظات</span></label>
+          <textarea class="fc" id="cn-notes" placeholder="—"></textarea>
+        </div>
+        <div class="tot-box">
+          <div class="trow"><span class="tl" data-ar="المجموع قبل الضريبة" data-en="Subtotal" data-both="المجموع / Subtotal">المجموع قبل الضريبة</span><span class="tv" id="sub-lbl">0.00</span></div>
+          <div class="trow disc"><span class="tl" data-ar="الخصومات" data-en="Discounts" data-both="الخصومات / Discounts">الخصومات</span><span class="tv" id="disc-lbl">- 0.00</span></div>
+          <div class="trow"><span class="tl" data-ar="ضريبة القيمة المضافة" data-en="VAT" data-both="الضريبة / VAT">ضريبة القيمة المضافة</span><span class="tv" id="tax-lbl">0.00</span></div>
+          <div class="trow grand"><span class="tl" data-ar="الإجمالي النهائي" data-en="Grand Total" data-both="الإجمالي / Grand Total">الإجمالي النهائي</span><span class="tv" id="grand-lbl">0.00 SAR</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:65px"></div>
+  </div>
+
+  <!-- ══ PAGE: CLIENTS ══ -->
+  <div class="page" id="page-clients">
+    <div class="ph">
+      <div><div class="pt" id="page-clients-title">العملاء — Clients<small id="page-clients-sub">أضف وعدّل بيانات عملائك</small></div></div>
+      <button class="btn btn-primary" onclick="openClientForm()"><i class="ti ti-plus"></i> <span data-ar="إضافة عميل" data-en="Add Client" data-both="إضافة / Add Client">إضافة عميل</span></button>
+    </div>
+    <div class="cl-form" id="cl-form">
+      <div class="cfh">
+        <div class="cft" id="cl-form-title">—</div>
+        <button class="btn btn-sm" onclick="closeClientForm()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="g2" style="margin-bottom:11px">
+        <div class="fg"><label class="lbl"><span data-ar="اسم العميل / الشركة *" data-en="Client / Company Name *" data-both="اسم العميل / Client Name *">اسم العميل *</span></label><input class="fc" id="cl-name" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="جهة الاتصال" data-en="Contact Person" data-both="جهة الاتصال / Contact">جهة الاتصال</span></label><input class="fc" id="cl-contact" placeholder="—"></div>
+      </div>
+      <div class="g3" style="margin-bottom:11px">
+        <div class="fg"><label class="lbl"><span data-ar="السجل التجاري" data-en="CR No." data-both="السجل / CR No.">السجل التجاري</span></label><input class="fc" id="cl-cr" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الرقم الضريبي" data-en="VAT No." data-both="الضريبي / VAT No.">الرقم الضريبي</span></label><input class="fc" id="cl-vat" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="البريد الإلكتروني" data-en="Email" data-both="البريد / Email">البريد الإلكتروني</span></label><input class="fc" id="cl-email" type="email" placeholder="—"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="ct" style="margin-bottom:10px"><i class="ti ti-map-pin"></i> <span data-ar="العنوان" data-en="Address" data-both="العنوان / Address">العنوان</span></div>
+      <div class="g4" style="margin-bottom:11px">
+        <div class="fg"><label class="lbl"><span data-ar="رقم المبنى" data-en="Bldg No." data-both="المبنى / Bldg">رقم المبنى</span></label><input class="fc" id="cl-bldg" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الشارع" data-en="Street" data-both="الشارع / Street">الشارع</span></label><input class="fc" id="cl-street" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الحي" data-en="District" data-both="الحي / District">الحي</span></label><input class="fc" id="cl-district" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الرمز البريدي" data-en="ZIP Code" data-both="ZIP">الرمز البريدي</span></label><input class="fc" id="cl-zip" placeholder="—"></div>
+      </div>
+      <div class="g3">
+        <div class="fg"><label class="lbl"><span data-ar="المدينة" data-en="City" data-both="المدينة / City">المدينة</span></label><input class="fc" id="cl-city" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الرقم الفرعي" data-en="Add. No." data-both="الفرعي / Add.">الرقم الفرعي</span></label><input class="fc" id="cl-sub" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الدولة" data-en="Country" data-both="الدولة / Country">الدولة</span></label>
+          <select class="fc" id="cl-country">
+            <option>المملكة العربية السعودية / Saudi Arabia</option>
+            <option>مصر / Egypt</option>
+            <option>الإمارات / UAE</option>
+            <option>الكويت / Kuwait</option>
+            <option>قطر / Qatar</option>
+            <option>البحرين / Bahrain</option>
+            <option>الأردن / Jordan</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+        <button class="btn" onclick="closeClientForm()"><span data-ar="إلغاء" data-en="Cancel" data-both="إلغاء / Cancel">إلغاء</span></button>
+        <button class="btn btn-success" onclick="saveClient()"><i class="ti ti-check"></i> <span data-ar="حفظ" data-en="Save" data-both="حفظ / Save">حفظ</span></button>
+      </div>
+    </div>
+    <div id="cl-grid" class="cl-grid"></div>
+    <div id="cl-empty" class="empty"><i class="ti ti-users"></i><p id="cl-empty-txt">لا يوجد عملاء بعد — أضف أول عميل</p></div>
+  </div>
+
+  <!-- ══ PAGE: COMPANY ══ -->
+  <div class="page" id="page-company">
+    <div class="ph">
+      <div><div class="pt" id="page-co-title">بيانات شركتي — My Company<small id="page-co-sub">ستظهر هذه البيانات في رأس كل إشعار</small></div></div>
+      <button class="btn btn-success" onclick="saveCompany()"><i class="ti ti-check"></i> <span data-ar="حفظ" data-en="Save" data-both="حفظ / Save">حفظ</span></button>
+    </div>
+    <div class="card">
+      <div class="ct"><i class="ti ti-building"></i> <span data-ar="الهوية التجارية" data-en="Business Identity" data-both="الهوية / Business Identity">الهوية التجارية</span></div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:13px">
+        <div>
+          <div class="lbl" style="margin-bottom:6px"><span data-ar="اللوجو" data-en="Logo" data-both="اللوجو / Logo">اللوجو</span></div>
+          <div class="logo-up" onclick="document.getElementById('logo-input').click()" style="width:158px;flex-direction:column;text-align:center;gap:7px;padding:13px 10px">
+            <div id="logo-ph" class="logo-ph" style="margin:0 auto"><i class="ti ti-building-skyscraper"></i></div>
+            <img id="logo-img" class="logo-prev" style="margin:0 auto" alt="">
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--g700)" id="logo-upload-txt">اضغط للرفع</div>
+              <div style="font-size:10px;color:var(--g400)">PNG, JPG</div>
+              <div id="logo-fname" style="font-size:10px;color:var(--blue);margin-top:2px;word-break:break-all"></div>
+            </div>
+          </div>
+          <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogo(this)">
+        </div>
+        <div style="flex:1;min-width:260px">
+          <div class="g2" style="margin-bottom:11px">
+            <div class="fg">
+              <label class="lbl"><span data-ar="اسم المورد *" data-en="Supplier Name *" data-both="اسم المورد / Supplier Name *">اسم المورد *</span></label>
+              <input class="fc" id="co-name" placeholder="—" oninput="syncCo()">
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="الرقم الضريبي" data-en="VAT No." data-both="الضريبي / VAT No.">الرقم الضريبي</span></label>
+              <input class="fc" id="co-vat" placeholder="300000000000003">
+            </div>
+          </div>
+          <div class="g2">
+            <div class="fg">
+              <label class="lbl"><span data-ar="السجل التجاري" data-en="CR No." data-both="السجل / CR No.">السجل التجاري</span></label>
+              <input class="fc" id="co-cr" placeholder="1234567890">
+            </div>
+            <div class="fg">
+              <label class="lbl"><span data-ar="البريد الإلكتروني" data-en="Email" data-both="البريد / Email">البريد الإلكتروني</span></label>
+              <input class="fc" id="co-email" type="email" placeholder="info@company.com">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><i class="ti ti-map-pin"></i> <span data-ar="العنوان الوطني" data-en="National Address" data-both="العنوان / National Address">العنوان الوطني</span></div>
+      <div class="g4" style="margin-bottom:11px">
+        <div class="fg"><label class="lbl"><span data-ar="رقم المبنى" data-en="Bldg No." data-both="المبنى / Bldg">رقم المبنى</span></label><input class="fc" id="co-bldg" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الشارع" data-en="Street" data-both="الشارع / Street">الشارع</span></label><input class="fc" id="co-street" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الحي" data-en="District" data-both="الحي / District">الحي</span></label><input class="fc" id="co-district" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الرمز البريدي" data-en="ZIP" data-both="ZIP">الرمز البريدي</span></label><input class="fc" id="co-zip" placeholder="—"></div>
+      </div>
+      <div class="g3">
+        <div class="fg"><label class="lbl"><span data-ar="المدينة" data-en="City" data-both="المدينة / City">المدينة</span></label><input class="fc" id="co-city" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الرقم الفرعي" data-en="Add. No." data-both="الفرعي / Add.">الرقم الفرعي</span></label><input class="fc" id="co-sub" placeholder="—"></div>
+        <div class="fg"><label class="lbl"><span data-ar="الدولة" data-en="Country" data-both="الدولة / Country">الدولة</span></label>
+          <select class="fc" id="co-country">
+            <option>المملكة العربية السعودية / Saudi Arabia</option>
+            <option>مصر / Egypt</option>
+            <option>الإمارات / UAE</option>
+            <option>الكويت / Kuwait</option>
+            <option>قطر / Qatar</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div style="height:30px"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-bar no-print" id="footer-bar">
+    <button class="btn btn-danger" onclick="discardDraft()"><i class="ti ti-trash"></i> <span data-ar="حذف" data-en="Discard" data-both="حذف / Discard">حذف</span></button>
+    <button class="btn" onclick="saveDraft()"><i class="ti ti-device-floppy"></i> <span data-ar="حفظ مسودة" data-en="Save Draft" data-both="مسودة / Draft">حفظ مسودة</span></button>
+    <button class="btn btn-print" onclick="doPrint()"><i class="ti ti-printer"></i> <span data-ar="طباعة PDF" data-en="Print PDF" data-both="طباعة / Print PDF">طباعة PDF</span></button>
+    <button class="btn btn-success" onclick="confirmNote()"><i class="ti ti-check"></i> <span data-ar="إصدار" data-en="Issue" data-both="إصدار / Issue">إصدار</span></button>
+  </div>
+</div>
+
+<!-- ══ PRINT AREA ══ -->
+<div id="print-area" class="rtl">
+  <div class="p-header">
+    <div class="p-logo-wrap">
+      <div class="p-logo-box" id="p-logo-box"><i class="ti ti-building-skyscraper" id="p-logo-icon"></i><img id="p-logo-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:contain"></div>
+      <div>
+        <div class="p-co-name" id="p-co-name">—</div>
+        <div class="p-co-sub" id="p-co-sub">CR: — | VAT: —</div>
+      </div>
+    </div>
+    <div class="p-title-block">
+      <div class="p-title-main" id="p-title-main">CREDIT NOTE</div>
+      <div class="p-title-sub" id="p-title-sub">إشعار دائن</div>
+    </div>
+  </div>
+
+  <div class="p-strip">
+    <div class="p-si"><span class="p-sl" id="p-lbl-num">رقم الإشعار / Note No.</span><span class="p-sv" id="p-num">—</span></div>
+    <div class="p-si"><span class="p-sl" id="p-lbl-date">التاريخ / Date</span><span class="p-sv" id="p-date">—</span></div>
+    <div class="p-si"><span class="p-sl" id="p-lbl-reason">السبب / Reason</span><span class="p-sv" id="p-reason">—</span></div>
+    <div class="p-si"><span class="p-sl" id="p-lbl-status">الحالة / Status</span><span class="p-sv" id="p-status">—</span></div>
+  </div>
+
+  <div class="p-parties">
+    <div class="p-party">
+      <div class="p-ptitle" id="p-from-title"><i class="ti ti-building" style="font-size:12px"></i> المُصدِر / FROM</div>
+      <div class="p-pname" id="p-co-name2">—</div>
+      <div id="p-co-det"></div>
+    </div>
+    <div class="p-party">
+      <div class="p-ptitle" id="p-to-title"><i class="ti ti-user" style="font-size:12px"></i> العميل / TO</div>
+      <div class="p-pname" id="p-cl-name">—</div>
+      <div id="p-cl-det"></div>
+    </div>
+  </div>
+
+  <div class="p-table-wrap">
+    <table class="p-table">
+      <thead><tr>
+        <th style="width:24px">#</th>
+        <th id="p-th-item">المنتج / Item</th>
+        <th id="p-th-desc">الوصف / Desc</th>
+        <th style="width:44px" id="p-th-qty">الكمية / Qty</th>
+        <th style="width:74px" id="p-th-price">سعر الوحدة / Price</th>
+        <th style="width:50px" id="p-th-disc">خصم / Disc%</th>
+        <th style="width:50px" id="p-th-tax">ضريبة / Tax%</th>
+        <th style="width:74px" id="p-th-total">الإجمالي / Total</th>
+      </tr></thead>
+      <tbody id="p-lines"></tbody>
+    </table>
+  </div>
+
+  <div class="p-totals">
+    <div class="p-tbox">
+      <div class="p-trow"><span class="pl" id="p-lbl-sub">المجموع / Subtotal</span><span class="pv" id="p-sub">0.00</span></div>
+      <div class="p-trow disc"><span class="pl" id="p-lbl-disc">الخصومات / Discounts</span><span class="pv" id="p-disc">- 0.00</span></div>
+      <div class="p-trow"><span class="pl" id="p-lbl-vat">الضريبة / VAT</span><span class="pv" id="p-tax">0.00</span></div>
+      <div class="p-trow grand"><span class="pl" id="p-lbl-grand">الإجمالي / Grand Total</span><span class="pv" id="p-grand">0.00 SAR</span></div>
+    </div>
+  </div>
+
+  <div class="p-notes" id="p-notes-wrap" style="display:none">
+    <strong id="p-notes-lbl">ملاحظات / Notes</strong>
+    <span id="p-notes-txt"></span>
+  </div>
+
+  <div class="p-footer">
+    <div class="p-ftxt" id="p-footer-co">—</div>
+    <div class="p-fnum" id="p-footer-num">—</div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────
+// LANGUAGE SYSTEM
+// ──────────────────────────────────────────────
+let currentLang = 'ar'; // 'ar' | 'en' | 'both'
+
+const T = {
+  ar: {
+    pageTitle:'إشعار دائن | Credit Note',
+    tbSales:'المبيعات', tbCN:'إشعار دائن جديد', tbClients:'العملاء', tbCompany:'شركتي',
+    stDraft:'مسودة', stSaved:'محفوظة', stIssued:'صادر',
+    alertInfo:'هذا الإشعار سيُخصم من رصيد العميل أو يُسوَّى مع الفاتورة المحددة.',
+    alertSaved:'تم حفظ بيانات الشركة بنجاح.',
+    pageCNTitle:'إشعار دائن', pageCNSub:'أنشئ إشعاراً لخصم مبلغ من رصيد العميل',
+    pageClTitle:'العملاء', pageClSub:'أضف وعدّل بيانات عملائك',
+    pageCoTitle:'بيانات شركتي', pageCoSub:'ستظهر هذه البيانات في رأس كل إشعار',
+    logoUpload:'اضغط للرفع',
+    clientFormNew:'عميل جديد', clientFormEdit:'تعديل بيانات العميل',
+    clientEmpty:'لا يوجد عملاء بعد — أضف أول عميل من الزر أعلاه',
+    sbLangTitle:'🌐 لغة الواجهة', sbSerialTitle:'⚙ ترقيم الإشعار',
+    lblPrefix:'البادئة', lblYear:'السنة', lblNumber:'الرقم', lblDigits:'أرقام', lblSep:'فاصل',
+    applyBtn:'✓ تطبيق',
+    alertMissCo:'يرجى إدخال بيانات شركتك أولاً من «شركتي».',
+    alertMissCl:'يرجى اختيار عميل.',
+    alertMissLine:'يرجى إضافة بند واحد على الأقل.',
+    alertSavedDraft:'تم حفظ المسودة.',
+    alertDiscard:'هل تريد حذف المسودة والبداية من جديد؟',
+    alertIssued:'✓ تم إصدار الإشعار بنجاح!',
+    alertDelClient:'هل تريد حذف هذا العميل؟',
+    alertCoRequired:'يرجى إدخال اسم المورد.',
+    alertClRequired:'يرجى إدخال اسم العميل.',
+    editBtn:'تعديل', delBtn:'حذف',
+    pFromTitle:'المُصدِر', pToTitle:'العميل',
+    pNoteNoLbl:'رقم الإشعار', pDateLbl:'التاريخ', pReasonLbl:'السبب', pStatusLbl:'الحالة',
+    pSubLbl:'المجموع قبل الضريبة', pDiscLbl:'الخصومات', pVatLbl:'ضريبة القيمة المضافة', pGrandLbl:'الإجمالي النهائي',
+    pNotesLbl:'ملاحظات', pTitleMain:'إشعار دائن', pTitleSub:'Credit Note',
+    pThItem:'المنتج', pThDesc:'الوصف', pThQty:'الكمية', pThPrice:'سعر الوحدة', pThDisc:'خصم%', pThTax:'ضريبة%', pThTotal:'الإجمالي',
+    pAttn:'للسيد', pAddr:'العنوان', pCo:'الدولة', pBldg:'المبنى', pCR:'السجل', pVAT:'الرقم الضريبي',
+    reasons:['إرجاع بضاعة','خصم تجاري','تعديل سعر','خطأ في الفاتورة','أخرى'],
+  },
+  en: {
+    pageTitle:'Credit Note',
+    tbSales:'Sales', tbCN:'New Credit Note', tbClients:'Clients', tbCompany:'My Company',
+    stDraft:'Draft', stSaved:'Saved', stIssued:'Issued',
+    alertInfo:'This credit note will be deducted from the customer\'s balance or settled against the selected invoice.',
+    alertSaved:'Company details saved successfully.',
+    pageCNTitle:'Credit Note', pageCNSub:'Issue a credit against a customer balance',
+    pageClTitle:'Clients', pageClSub:'Add and manage your clients',
+    pageCoTitle:'My Company', pageCoSub:'These details appear on every credit note',
+    logoUpload:'Click to Upload',
+    clientFormNew:'New Client', clientFormEdit:'Edit Client',
+    clientEmpty:'No clients yet — add your first client above',
+    sbLangTitle:'🌐 Interface Language', sbSerialTitle:'⚙ Serial Settings',
+    lblPrefix:'Prefix', lblYear:'Year', lblNumber:'Number', lblDigits:'Digits', lblSep:'Separator',
+    applyBtn:'✓ Apply',
+    alertMissCo:'Please fill in your company details first (My Company).',
+    alertMissCl:'Please select a client.',
+    alertMissLine:'Please add at least one line item.',
+    alertSavedDraft:'Draft saved.',
+    alertDiscard:'Discard this draft and start fresh?',
+    alertIssued:'✓ Credit note issued successfully!',
+    alertDelClient:'Delete this client?',
+    alertCoRequired:'Please enter the supplier name.',
+    alertClRequired:'Please enter the client name.',
+    editBtn:'Edit', delBtn:'Delete',
+    pFromTitle:'FROM', pToTitle:'TO',
+    pNoteNoLbl:'Note No.', pDateLbl:'Date', pReasonLbl:'Reason', pStatusLbl:'Status',
+    pSubLbl:'Subtotal', pDiscLbl:'Discounts', pVatLbl:'VAT', pGrandLbl:'Grand Total',
+    pNotesLbl:'Notes', pTitleMain:'CREDIT NOTE', pTitleSub:'إشعار دائن',
+    pThItem:'Item', pThDesc:'Description', pThQty:'Qty', pThPrice:'Unit Price', pThDisc:'Disc%', pThTax:'Tax%', pThTotal:'Total',
+    pAttn:'Attn', pAddr:'Address', pCo:'Country', pBldg:'Building', pCR:'CR No.', pVAT:'VAT No.',
+    reasons:['Return','Trade Discount','Price Adjustment','Invoice Error','Other'],
+  },
+  both: {
+    pageTitle:'إشعار دائن | Credit Note',
+    tbSales:'المبيعات / Sales', tbCN:'إشعار دائن / Credit Note', tbClients:'العملاء / Clients', tbCompany:'شركتي / My Company',
+    stDraft:'Draft / مسودة', stSaved:'Saved / محفوظة', stIssued:'Issued / صادر',
+    alertInfo:'هذا الإشعار سيُخصم من رصيد العميل | This credit note will be deducted from the customer\'s balance.',
+    alertSaved:'تم حفظ بيانات الشركة. / Company details saved.',
+    pageCNTitle:'إشعار دائن — Credit Note', pageCNSub:'أنشئ إشعاراً لخصم مبلغ من رصيد العميل | Issue a credit against a customer balance',
+    pageClTitle:'العملاء — Clients', pageClSub:'أضف وعدّل بيانات عملائك | Add and manage your clients',
+    pageCoTitle:'بيانات شركتي — My Company', pageCoSub:'ستظهر هذه البيانات في رأس كل إشعار | Appears on every credit note',
+    logoUpload:'اضغط للرفع / Upload',
+    clientFormNew:'عميل جديد / New Client', clientFormEdit:'تعديل / Edit Client',
+    clientEmpty:'لا يوجد عملاء | No clients yet — add your first client above',
+    sbLangTitle:'🌐 اللغة / Language', sbSerialTitle:'⚙ ترقيم / Serial Settings',
+    lblPrefix:'Prefix / البادئة', lblYear:'Year / السنة', lblNumber:'No. / الرقم', lblDigits:'Digits / أرقام', lblSep:'Sep / فاصل',
+    applyBtn:'✓ تطبيق / Apply',
+    alertMissCo:'يرجى إدخال بيانات شركتك. / Please fill in company details.',
+    alertMissCl:'يرجى اختيار عميل. / Please select a client.',
+    alertMissLine:'يرجى إضافة بند. / Please add at least one item.',
+    alertSavedDraft:'تم حفظ المسودة. / Draft saved.',
+    alertDiscard:'حذف المسودة؟ / Discard this draft?',
+    alertIssued:'✓ تم إصدار الإشعار! / Credit note issued!',
+    alertDelClient:'هل تريد الحذف؟ / Delete this client?',
+    alertCoRequired:'يرجى إدخال اسم المورد. / Please enter supplier name.',
+    alertClRequired:'يرجى إدخال اسم العميل. / Please enter client name.',
+    editBtn:'تعديل / Edit', delBtn:'حذف / Delete',
+    pFromTitle:'المُصدِر / FROM', pToTitle:'العميل / TO',
+    pNoteNoLbl:'رقم الإشعار / Note No.', pDateLbl:'التاريخ / Date', pReasonLbl:'السبب / Reason', pStatusLbl:'الحالة / Status',
+    pSubLbl:'المجموع / Subtotal', pDiscLbl:'الخصومات / Discounts', pVatLbl:'الضريبة / VAT', pGrandLbl:'الإجمالي / Grand Total',
+    pNotesLbl:'ملاحظات / Notes', pTitleMain:'CREDIT NOTE', pTitleSub:'إشعار دائن',
+    pThItem:'المنتج / Item', pThDesc:'الوصف / Desc', pThQty:'الكمية / Qty', pThPrice:'سعر / Price', pThDisc:'خصم / Disc%', pThTax:'ضريبة / Tax%', pThTotal:'الإجمالي / Total',
+    pAttn:'للسيد / Attn', pAddr:'العنوان / Address', pCo:'الدولة / Country', pBldg:'المبنى / Bldg', pCR:'السجل / CR', pVAT:'الضريبي / VAT',
+    reasons:['إرجاع بضاعة / Return','خصم تجاري / Trade Discount','تعديل سعر / Price Adjustment','خطأ في الفاتورة / Invoice Error','أخرى / Other'],
+  }
+};
+
+function t(key){ return T[currentLang][key] || T.both[key] || key; }
+
+function setLang(lang){
+  currentLang = lang;
+  const root = document.getElementById('html-root');
+  root.setAttribute('lang', lang === 'en' ? 'en' : 'ar');
+  root.setAttribute('dir',  lang === 'en' ? 'ltr' : 'rtl');
+
+  // Sidebar arrow
+  document.getElementById('breadcrumb-arrow').className = lang === 'en' ? 'ti ti-chevron-right' : 'ti ti-chevron-left';
+  document.getElementById('breadcrumb-arrow').style.fontSize = '13px';
+
+  // Active button
+  ['ar','both','en'].forEach(l=>{
+    document.getElementById('lb-'+l).classList.toggle('active', l===lang);
+  });
+
+  // Print area direction
+  const pa = document.getElementById('print-area');
+  pa.classList.toggle('ltr', lang === 'en');
+  pa.classList.toggle('rtl', lang !== 'en');
+
+  // Update serial panel labels
+  document.getElementById('sb-lang-title').textContent = t('sbLangTitle');
+  document.getElementById('sb-serial-title').textContent = t('sbSerialTitle');
+  document.getElementById('lbl-prefix').textContent = t('lblPrefix');
+  document.getElementById('lbl-year').textContent = t('lblYear');
+  document.getElementById('lbl-number').textContent = t('lblNumber');
+  document.getElementById('lbl-digits').textContent = t('lblDigits');
+  document.getElementById('lbl-sep').textContent = t('lblSep');
+  document.getElementById('btn-apply-serial').textContent = t('applyBtn');
+  document.getElementById('logo-upload-txt').textContent = t('logoUpload');
+
+  // Update all data-ar/data-en/data-both spans
+  document.querySelectorAll('[data-ar],[data-en],[data-both]').forEach(el=>{
+    const val = el.getAttribute('data-'+lang) || el.getAttribute('data-both') || el.textContent;
+    el.textContent = val;
+  });
+
+  // Update reason select options
+  const reasonSel = document.getElementById('cn-reason');
+  Array.from(reasonSel.options).forEach((opt,i)=>{
+    opt.textContent = T[lang].reasons[i] || T.both.reasons[i];
+  });
+
+  // Status badge
+  const curStatus = document.getElementById('status-badge').className;
+  if(curStatus.includes('st-draft')) document.getElementById('status-badge').textContent = t('stDraft');
+  else if(curStatus.includes('st-saved')) document.getElementById('status-badge').textContent = t('stSaved');
+  else if(curStatus.includes('st-issued')) document.getElementById('status-badge').textContent = t('stIssued');
+
+  // Topbar section
+  const activePage = document.querySelector('.page.active');
+  if(activePage){
+    const pageMap = {'page-cn':'tbCN','page-clients':'tbClients','page-company':'tbCompany'};
+    document.getElementById('tb-section').textContent = t(pageMap[activePage.id] || 'tbCN');
+  }
+
+  // Page titles
+  document.getElementById('page-cn-title').childNodes[0].textContent = t('pageCNTitle')+' ';
+  document.getElementById('page-cn-sub').textContent = t('pageCNSub');
+  document.getElementById('page-clients-title').childNodes[0].textContent = t('pageClTitle')+' ';
+  document.getElementById('page-clients-sub').textContent = t('pageClSub');
+  document.getElementById('page-co-title').childNodes[0].textContent = t('pageCoTitle')+' ';
+  document.getElementById('page-co-sub').textContent = t('pageCoSub');
+  document.getElementById('cl-empty-txt').textContent = t('clientEmpty');
+
+  // Alert
+  const al = document.getElementById('main-alert');
+  if(al.classList.contains('al-info')){
+    document.getElementById('alert-text').textContent = t('alertInfo');
+  }
+
+  renderClients();
+}
+
+// ──────────────────────────────────────────────
+// SERIAL NUMBER SYSTEM
+// ──────────────────────────────────────────────
+function buildSerial(){
+  const prefix = document.getElementById('ser-prefix').value || 'CN';
+  const year   = document.getElementById('ser-year').value || '';
+  const num    = parseInt(document.getElementById('ser-num').value) || 1;
+  const digits = parseInt(document.getElementById('ser-digits').value) || 1;
+  const sep    = document.getElementById('ser-sep').value;
+  const padded = digits > 1 ? String(num).padStart(digits,'0') : String(num);
+  const parts  = [prefix, year, padded].filter(Boolean);
+  return parts.join(sep);
+}
+
+function updateSerialPreview(){
+  document.getElementById('ser-preview').textContent = buildSerial();
+}
+
+function applySerial(){
+  const serial = buildSerial();
+  document.getElementById('cn-num-field').value = serial;
+  document.getElementById('cn-num-display').textContent = serial;
+  document.getElementById('ser-preview').textContent = serial;
+  // Auto-increment for next note
+  const n = parseInt(document.getElementById('ser-num').value) || 1;
+  document.getElementById('ser-num').value = n + 1;
+  updateSerialPreview();
+}
+
+// ──────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el&&el.classList)el.classList.add('active');
+  const map={'page-cn':'tbCN','page-clients':'tbClients','page-company':'tbCompany'};
+  document.getElementById('tb-section').textContent = t(map[id]||'tbCN');
+  document.getElementById('footer-bar').style.display = id==='page-cn'?'flex':'none';
+}
+
+// ──────────────────────────────────────────────
+// LOGO
+// ──────────────────────────────────────────────
+let logoDataURL = null;
+
+function handleLogo(inp){
+  if(!inp.files||!inp.files[0])return;
+  const r = new FileReader();
+  r.onload = e => {
+    logoDataURL = e.target.result;
+    document.getElementById('logo-ph').style.display='none';
+    const img=document.getElementById('logo-img');img.src=logoDataURL;img.style.display='block';
+    document.getElementById('logo-fname').textContent=inp.files[0].name;
+    document.getElementById('cn-logo-ph').style.display='none';
+    const ci=document.getElementById('cn-logo-img');ci.src=logoDataURL;ci.style.display='block';
+  };
+  r.readAsDataURL(inp.files[0]);
+}
+
+// ──────────────────────────────────────────────
+// COMPANY
+// ──────────────────────────────────────────────
+function syncCo(){
+  const v=document.getElementById('co-name').value;
+  document.getElementById('cn-coname').value=v;
+  document.getElementById('cn-co-lbl').textContent=v;
+  document.getElementById('sb-name').textContent=v||'NovaERP';
+}
+
+function saveCompany(){
+  if(!document.getElementById('co-name').value.trim()){alert(t('alertCoRequired'));return;}
+  syncCo();
+  const al=document.getElementById('main-alert');
+  al.className='alert al-ok';
+  al.innerHTML=`<i class="ti ti-check"></i><span id="alert-text">${t('alertSaved')}</span>`;
+  showPage('page-cn',document.querySelectorAll('.nav-item')[0]);
+}
+
+// ──────────────────────────────────────────────
+// CLIENTS
+// ──────────────────────────────────────────────
+let clients=[], editingIdx=null;
+
+function renderClients(){
+  const grid=document.getElementById('cl-grid'),empty=document.getElementById('cl-empty');
+  document.getElementById('nav-cnt').textContent=clients.length;
+  const sel=document.getElementById('cn-client-sel');
+  const prev=sel.value;
+  sel.innerHTML=`<option value="">—</option>`;
+  clients.forEach((c,i)=>sel.innerHTML+=`<option value="${i}">${c.name}</option>`);
+  if(prev!=='')sel.value=prev;
+  if(!clients.length){empty.style.display='block';grid.style.display='none';return;}
+  empty.style.display='none';grid.style.display='grid';grid.innerHTML='';
+  clients.forEach((c,i)=>{
+    const init=c.name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'?';
+    const d=document.createElement('div');d.className='cl-card';
+    d.innerHTML=`<div class="cl-hd"><div class="cl-av">${init}</div><div><div class="cl-n">${esc(c.name)}</div><div class="cl-s">${esc(c.contact)||'—'}</div></div></div>
+    <div class="cl-meta">
+      ${c.cr?`<span><i class="ti ti-id-badge-2"></i>CR: ${esc(c.cr)}</span>`:''}
+      ${c.vat?`<span><i class="ti ti-receipt-tax"></i>VAT: ${esc(c.vat)}</span>`:''}
+      ${c.email?`<span><i class="ti ti-mail"></i>${esc(c.email)}</span>`:''}
+      ${c.city?`<span><i class="ti ti-map-pin"></i>${esc(c.city)}${c.district?' / '+esc(c.district):''}</span>`:''}
+    </div>
+    <div class="cl-ft">
+      <button class="btn btn-sm" onclick="editClient(${i})"><i class="ti ti-edit"></i> ${t('editBtn')}</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteClient(${i})"><i class="ti ti-trash"></i> ${t('delBtn')}</button>
+    </div>`;
+    grid.appendChild(d);
+  });
+}
+
+function openClientForm(){
+  editingIdx=null;
+  document.getElementById('cl-form-title').textContent=t('clientFormNew');
+  ['cl-name','cl-contact','cl-cr','cl-vat','cl-email','cl-city','cl-district','cl-street','cl-bldg','cl-zip','cl-sub'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cl-country').selectedIndex=0;
+  const f=document.getElementById('cl-form');f.classList.add('open');f.scrollIntoView({behavior:'smooth'});
+}
+
+function closeClientForm(){document.getElementById('cl-form').classList.remove('open');}
+
+function editClient(i){
+  editingIdx=i;const c=clients[i];
+  document.getElementById('cl-form-title').textContent=t('clientFormEdit');
+  const m={'cl-name':'name','cl-contact':'contact','cl-cr':'cr','cl-vat':'vat','cl-email':'email','cl-city':'city','cl-district':'district','cl-street':'street','cl-bldg':'bldg','cl-zip':'zip','cl-sub':'sub'};
+  Object.entries(m).forEach(([id,k])=>document.getElementById(id).value=c[k]||'');
+  document.getElementById('cl-country').value=c.country||'المملكة العربية السعودية / Saudi Arabia';
+  const f=document.getElementById('cl-form');f.classList.add('open');f.scrollIntoView({behavior:'smooth'});
+}
+
+function deleteClient(i){
+  if(confirm(t('alertDelClient')+'\n"'+clients[i].name+'"')){clients.splice(i,1);renderClients();}
+}
+
+function saveClient(){
+  const name=document.getElementById('cl-name').value.trim();
+  if(!name){alert(t('alertClRequired'));return;}
+  const c={name,contact:document.getElementById('cl-contact').value,cr:document.getElementById('cl-cr').value,vat:document.getElementById('cl-vat').value,email:document.getElementById('cl-email').value,city:document.getElementById('cl-city').value,district:document.getElementById('cl-district').value,street:document.getElementById('cl-street').value,bldg:document.getElementById('cl-bldg').value,zip:document.getElementById('cl-zip').value,sub:document.getElementById('cl-sub').value,country:document.getElementById('cl-country').value};
+  if(editingIdx!==null)clients[editingIdx]=c;else clients.push(c);
+  renderClients();closeClientForm();editingIdx=null;
+}
+
+// ──────────────────────────────────────────────
+// LINE ITEMS
+// ──────────────────────────────────────────────
+let lines=[], lineId=0;
+
+function addLine(item='',desc='',qty=1,price=0,disc=0,tax=15){
+  lineId++;lines.push({id:lineId,item,desc,qty,price,disc,tax});renderLines();calcTotals();
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderLines(){
+  const tb=document.getElementById('lines-body');tb.innerHTML='';
+  lines.forEach((l,i)=>{
+    const net=l.qty*l.price*(1-l.disc/100),tot=net*(1+l.tax/100);
+    tb.innerHTML+=`<tr>
+      <td style="color:var(--g400);font-family:var(--mono);font-size:12px">${i+1}</td>
+      <td><input value="${esc(l.item)}" oninput="upd(${l.id},'item',this.value)"></td>
+      <td><input value="${esc(l.desc)}" oninput="upd(${l.id},'desc',this.value)"></td>
+      <td><input type="number" value="${l.qty}" min="0" step="0.01" style="text-align:center" oninput="upd(${l.id},'qty',+this.value)"></td>
+      <td><input type="number" value="${l.price}" min="0" step="0.01" oninput="upd(${l.id},'price',+this.value)"></td>
+      <td><input type="number" value="${l.disc}" min="0" max="100" step="0.01" style="text-align:center" oninput="upd(${l.id},'disc',+this.value)"></td>
+      <td><select onchange="upd(${l.id},'tax',+this.value)">
+        <option value="0" ${l.tax==0?'selected':''}>0%</option>
+        <option value="5" ${l.tax==5?'selected':''}>5%</option>
+        <option value="15" ${l.tax==15?'selected':''}>15%</option>
+      </select></td>
+      <td style="font-weight:600;font-family:var(--mono);white-space:nowrap;color:var(--g900)">${tot.toFixed(2)}</td>
+      <td><button class="del-btn" onclick="delLine(${l.id})"><i class="ti ti-x"></i></button></td>
+    </tr>`;
+  });
+}
+
+function upd(id,f,v){const l=lines.find(x=>x.id==id);if(l){l[f]=v;renderLines();calcTotals();}}
+function delLine(id){lines=lines.filter(x=>x.id!=id);renderLines();calcTotals();}
+
+function calcTotals(){
+  let sub=0,disc=0,tax=0;
+  lines.forEach(l=>{const base=l.qty*l.price,d=base*(l.disc/100),net=base-d;sub+=net;disc+=d;tax+=net*(l.tax/100);});
+  const c=document.getElementById('curr-sel').value||'SAR';
+  document.getElementById('sub-lbl').textContent=(sub+disc).toFixed(2);
+  document.getElementById('disc-lbl').textContent='- '+disc.toFixed(2);
+  document.getElementById('tax-lbl').textContent=tax.toFixed(2);
+  document.getElementById('grand-lbl').textContent=(sub+tax).toFixed(2)+' '+c;
+  return{sub,disc,tax,grand:sub+tax,curr:c};
+}
+
+function saveDraft(){
+  const b=document.getElementById('status-badge');
+  b.textContent=t('stSaved');b.className='status-badge st-saved';
+  alert(t('alertSavedDraft'));
+}
+
+function discardDraft(){
+  if(!confirm(t('alertDiscard')))return;
+  lines=[];renderLines();calcTotals();
+  const b=document.getElementById('status-badge');b.textContent=t('stDraft');b.className='status-badge st-draft';
+  document.getElementById('cn-client-sel').value='';
+  addLine('خدمة استشارية / Consulting','',2,500,0,15);
+  addLine('منتج مرتجع / Returned Item','',5,120,10,15);
+}
+
+function confirmNote(){
+  if(!document.getElementById('cn-coname').value.trim()){alert(t('alertMissCo'));return;}
+  if(!document.getElementById('cn-client-sel').value){alert(t('alertMissCl'));return;}
+  if(!lines.length){alert(t('alertMissLine'));return;}
+  const b=document.getElementById('status-badge');b.textContent=t('stIssued');b.className='status-badge st-issued';
+  alert(t('alertIssued')+'\n'+document.getElementById('cn-num-field').value);
+}
+
+// ──────────────────────────────────────────────
+// PRINT / PDF
+// ──────────────────────────────────────────────
+function doPrint(){
+  const coName=document.getElementById('co-name').value||'—';
+  const coCR=document.getElementById('co-cr').value||'—';
+  const coVAT=document.getElementById('co-vat').value||'—';
+  const coEmail=document.getElementById('co-email').value||'';
+  const coBldg=document.getElementById('co-bldg').value||'';
+  const coStreet=document.getElementById('co-street').value||'';
+  const coDistrict=document.getElementById('co-district').value||'';
+  const coZip=document.getElementById('co-zip').value||'';
+  const coCity=document.getElementById('co-city').value||'';
+  const coCountry=document.getElementById('co-country').value||'';
+
+  // Logo
+  if(logoDataURL){
+    document.getElementById('p-logo-icon').style.display='none';
+    const pi=document.getElementById('p-logo-img');pi.src=logoDataURL;pi.style.display='block';
+  } else {
+    document.getElementById('p-logo-icon').style.display='';
+    document.getElementById('p-logo-img').style.display='none';
+  }
+
+  // Header
+  document.getElementById('p-co-name').textContent=coName;
+  document.getElementById('p-co-name2').textContent=coName;
+  document.getElementById('p-co-sub').textContent=`${t('pCR')}: ${coCR} | ${t('pVAT')}: ${coVAT}`;
+  document.getElementById('p-title-main').textContent=t('pTitleMain');
+  document.getElementById('p-title-sub').textContent=t('pTitleSub');
+
+  // Strip
+  document.getElementById('p-num').textContent=document.getElementById('cn-num-field').value;
+  document.getElementById('p-footer-num').textContent=document.getElementById('cn-num-field').value;
+  document.getElementById('p-date').textContent=document.getElementById('cn-date').value||'—';
+  document.getElementById('p-reason').textContent=document.getElementById('cn-reason').value||'—';
+  document.getElementById('p-status').textContent=document.getElementById('status-badge').textContent;
+  document.getElementById('p-lbl-num').textContent=t('pNoteNoLbl');
+  document.getElementById('p-lbl-date').textContent=t('pDateLbl');
+  document.getElementById('p-lbl-reason').textContent=t('pReasonLbl');
+  document.getElementById('p-lbl-status').textContent=t('pStatusLbl');
+
+  // Party titles
+  document.getElementById('p-from-title').innerHTML=`<i class="ti ti-building" style="font-size:12px"></i> ${t('pFromTitle')}`;
+  document.getElementById('p-to-title').innerHTML=`<i class="ti ti-user" style="font-size:12px"></i> ${t('pToTitle')}`;
+
+  // Issuer details
+  let coDet='';
+  if(coVAT&&coVAT!=='—')coDet+=`<div class="p-prow"><b>${t('pVAT')}:</b> ${coVAT}</div>`;
+  if(coCR&&coCR!=='—')coDet+=`<div class="p-prow"><b>${t('pCR')}:</b> ${coCR}</div>`;
+  if(coEmail)coDet+=`<div class="p-prow"><b>Email:</b> ${coEmail}</div>`;
+  const coAddrParts=[coBldg,coStreet,coDistrict,coZip,coCity,coCountry].filter(Boolean);
+  if(coAddrParts.length)coDet+=`<div class="p-prow"><b>${t('pAddr')}:</b> ${coAddrParts.join(' — ')}</div>`;
+  document.getElementById('p-co-det').innerHTML=coDet;
+
+  // Client details
+  const selIdx=document.getElementById('cn-client-sel').value;
+  const cl=selIdx!==''?clients[parseInt(selIdx)]:null;
+  document.getElementById('p-cl-name').textContent=cl?cl.name:'—';
+  let clDet='';
+  if(cl){
+    if(cl.contact)clDet+=`<div class="p-prow"><b>${t('pAttn')}:</b> ${esc(cl.contact)}</div>`;
+    if(cl.cr)clDet+=`<div class="p-prow"><b>${t('pCR')}:</b> ${esc(cl.cr)}</div>`;
+    if(cl.vat)clDet+=`<div class="p-prow"><b>${t('pVAT')}:</b> ${esc(cl.vat)}</div>`;
+    if(cl.email)clDet+=`<div class="p-prow"><b>Email:</b> ${esc(cl.email)}</div>`;
+    const clAddrParts=[cl.bldg,cl.street,cl.district,cl.zip,cl.city,cl.country].filter(Boolean);
+    if(clAddrParts.length)clDet+=`<div class="p-prow"><b>${t('pAddr')}:</b> ${esc(clAddrParts.join(' — '))}</div>`;
+  }
+  document.getElementById('p-cl-det').innerHTML=clDet;
+
+  // Table headers
+  document.getElementById('p-th-item').textContent=t('pThItem');
+  document.getElementById('p-th-desc').textContent=t('pThDesc');
+  document.getElementById('p-th-qty').textContent=t('pThQty');
+  document.getElementById('p-th-price').textContent=t('pThPrice');
+  document.getElementById('p-th-disc').textContent=t('pThDisc');
+  document.getElementById('p-th-tax').textContent=t('pThTax');
+  document.getElementById('p-th-total').textContent=t('pThTotal');
+
+  // Lines
+  const pl=document.getElementById('p-lines');pl.innerHTML='';
+  lines.forEach((l,i)=>{
+    const net=l.qty*l.price*(1-l.disc/100),tot=net*(1+l.tax/100);
+    pl.innerHTML+=`<tr>
+      <td>${i+1}</td>
+      <td>${esc(l.item)}</td>
+      <td>${esc(l.desc)}</td>
+      <td class="center">${l.qty}</td>
+      <td class="num">${l.price.toFixed(2)}</td>
+      <td class="center">${l.disc}%</td>
+      <td class="center">${l.tax}%</td>
+      <td class="num">${tot.toFixed(2)}</td>
+    </tr>`;
+  });
+
+  // Totals
+  const to=calcTotals();
+  document.getElementById('p-sub').textContent=(to.sub+to.disc).toFixed(2);
+  document.getElementById('p-disc').textContent='- '+to.disc.toFixed(2);
+  document.getElementById('p-tax').textContent=to.tax.toFixed(2);
+  document.getElementById('p-grand').textContent=to.grand.toFixed(2)+' '+to.curr;
+  document.getElementById('p-lbl-sub').textContent=t('pSubLbl');
+  document.getElementById('p-lbl-disc').textContent=t('pDiscLbl');
+  document.getElementById('p-lbl-vat').textContent=t('pVatLbl');
+  document.getElementById('p-lbl-grand').textContent=t('pGrandLbl');
+
+  // Notes
+  const notes=document.getElementById('cn-notes').value.trim();
+  const nw=document.getElementById('p-notes-wrap');
+  if(notes){nw.style.display='block';document.getElementById('p-notes-txt').textContent=notes;document.getElementById('p-notes-lbl').textContent=t('pNotesLbl');}
+  else nw.style.display='none';
+
+  // Footer
+  document.getElementById('p-footer-co').textContent=coName+(coVAT&&coVAT!=='—'?` | ${t('pVAT')}: `+coVAT:'')+(coCR&&coCR!=='—'?` | ${t('pCR')}: `+coCR:'');
+
+  // Name the PDF file = credit note serial number
+  const _cnSerial = document.getElementById('cn-num-field').value || 'Credit-Note';
+  const _origTitle = document.title;
+  document.title = _cnSerial;
+  window.print();
+  document.title = _origTitle;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUPABASE — Cloud Storage
+// بعد إنشاء المشروع، استبدل القيمتين أدناه بقيمك الحقيقية
+// ══════════════════════════════════════════════════════════════
+const SB_URL = 'YOUR_SUPABASE_URL';       // مثال: https://xxxx.supabase.co
+const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';  // المفتاح العام anon public
+
+const sbConfigured = SB_URL !== 'YOUR_SUPABASE_URL' && SB_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+// Helper: Supabase REST call
+async function sb(table, method='GET', body=null, filter=''){
+  const url = `${SB_URL}/rest/v1/${table}${filter}`;
+  const headers = {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': method==='POST' ? 'return=representation' : (method==='PATCH'||method==='PUT' ? 'return=representation' : '')
+  };
+  const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+  if(!res.ok){ const err=await res.text(); throw new Error(err); }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// ── SYNC STATUS BAR ──
+function setSyncStatus(msg, color='var(--color-text-secondary)'){
+  const el = document.getElementById('sync-status');
+  if(el){ el.textContent = msg; el.style.color = color; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CLOUD SAVE / LOAD FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+
+// -- Company --
+async function cloudSaveCompany(){
+  const data = {
+    id:1, name:getVal('co-name'), vat:getVal('co-vat'), cr:getVal('co-cr'),
+    email:getVal('co-email'), bldg:getVal('co-bldg'), street:getVal('co-street'),
+    district:getVal('co-district'), zip:getVal('co-zip'), city:getVal('co-city'),
+    sub_num:getVal('co-sub'), country:getVal('co-country'),
+    logo_url: logoDataURL ? 'data:logo' : '', lang: currentLang
+  };
+  await sb('company','PUT',data,'?id=eq.1');
+}
+
+async function cloudLoadCompany(){
+  const rows = await sb('company','GET',null,'?id=eq.1');
+  if(!rows||!rows.length) return;
+  const c = rows[0];
+  setVal('co-name',c.name); setVal('co-vat',c.vat); setVal('co-cr',c.cr);
+  setVal('co-email',c.email); setVal('co-bldg',c.bldg); setVal('co-street',c.street);
+  setVal('co-district',c.district); setVal('co-zip',c.zip); setVal('co-city',c.city);
+  setVal('co-sub',c.sub_num); setVal('co-country',c.country);
+  if(c.lang) currentLang = c.lang;
+}
+
+// -- Serial Settings --
+async function cloudSaveSerial(){
+  const data = { id:1, prefix:getVal('ser-prefix'), year:getVal('ser-year'),
+    num:parseInt(getVal('ser-num'))||1, digits:parseInt(getVal('ser-digits'))||4,
+    separator:getVal('ser-sep') };
+  await sb('serial_settings','PUT',data,'?id=eq.1');
+}
+
+async function cloudLoadSerial(){
+  const rows = await sb('serial_settings','GET',null,'?id=eq.1');
+  if(!rows||!rows.length) return;
+  const s = rows[0];
+  setVal('ser-prefix',s.prefix); setVal('ser-year',s.year);
+  setVal('ser-num',String(s.num)); setVal('ser-digits',String(s.digits));
+  setVal('ser-sep',s.separator);
+  updateSerialPreview();
+}
+
+// -- Clients --
+async function cloudSaveAllClients(){
+  // Delete all then re-insert (simple strategy for small lists)
+  // First get existing IDs to preserve them
+  const existing = await sb('clients','GET',null,'?select=id,name&order=created_at');
+  const existingMap = {}; (existing||[]).forEach(r=>{ existingMap[r.name]=r.id; });
+
+  // Upsert each client
+  for(const c of clients){
+    const row = { name:c.name, contact:c.contact||'', cr:c.cr||'', vat:c.vat||'',
+      email:c.email||'', bldg:c.bldg||'', street:c.street||'', district:c.district||'',
+      zip:c.zip||'', city:c.city||'', sub_num:c.sub||'', country:c.country||'' };
+    if(c._id){ row.id=c._id; await sb('clients','PUT',row,`?id=eq.${c._id}`); }
+    else { const res=await sb('clients','POST',row); if(res&&res[0]) c._id=res[0].id; }
+  }
+}
+
+async function cloudLoadClients(){
+  const rows = await sb('clients','GET',null,'?order=created_at');
+  if(!rows) return;
+  clients = rows.map(r=>({
+    _id:r.id, name:r.name, contact:r.contact, cr:r.cr, vat:r.vat,
+    email:r.email, bldg:r.bldg, street:r.street, district:r.district,
+    zip:r.zip, city:r.city, sub:r.sub_num, country:r.country
+  }));
+  renderClients();
+}
+
+async function cloudDeleteClient(cloudId){
+  await sb('clients','DELETE',null,`?id=eq.${cloudId}`);
+}
+
+// -- Current Note --
+async function cloudSaveCurrentNote(){
+  const serial = getVal('cn-num-field');
+  if(!serial) return;
+  const selIdx = document.getElementById('cn-client-sel').value;
+  const cl = selIdx!=='' ? clients[parseInt(selIdx)] : null;
+  const totals = calcTotals();
+  const noteData = {
+    serial, date:getVal('cn-date'), reason:getVal('cn-reason'),
+    currency:getVal('curr-sel'), notes:getVal('cn-notes'),
+    status:document.getElementById('status-badge').className.includes('issued')?'issued':
+           document.getElementById('status-badge').className.includes('saved')?'saved':'draft',
+    subtotal:totals.sub+totals.disc, discount:totals.disc, tax:totals.tax, grand_total:totals.grand,
+    client_id: cl?._id || null
+  };
+  // Check if note exists
+  const existing = await sb('credit_notes','GET',null,`?serial=eq.${encodeURIComponent(serial)}&select=id`);
+  let noteId;
+  if(existing&&existing.length){
+    noteId=existing[0].id;
+    await sb('credit_notes','PATCH',noteData,`?id=eq.${noteId}`);
+    await sb('note_lines','DELETE',null,`?note_id=eq.${noteId}`);
+  } else {
+    const res=await sb('credit_notes','POST',noteData);
+    noteId=res&&res[0]?res[0].id:null;
+  }
+  if(!noteId) return;
+  // Save lines
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i];
+    const net=l.qty*l.price*(1-l.disc/100), tot=net*(1+l.tax/100);
+    await sb('note_lines','POST',{
+      note_id:noteId, sort_order:i, item:l.item, description:l.desc,
+      qty:l.qty, price:l.price, discount:l.disc, tax:l.tax, total:tot
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// MASTER SYNC — يشتغل كل 3 ثواني لو في تغيير
+// ══════════════════════════════════════════════════════════════
+let _dirty = false;
+let _syncing = false;
+
+function markDirty(){ _dirty = true; }
+
+async function syncLoop(){
+  if(!sbConfigured || _syncing || !_dirty) return;
+  _syncing = true;
+  _dirty = false;
+  try{
+    setSyncStatus('⟳ جاري الحفظ على Cloud...', '#185FA5');
+    await Promise.all([cloudSaveCompany(), cloudSaveSerial(), cloudSaveAllClients()]);
+    await cloudSaveCurrentNote();
+    setSyncStatus('✓ محفوظ على Cloud — ' + new Date().toLocaleTimeString('ar'), '#0e6e52');
+  }catch(e){
+    _dirty = true; // retry next cycle
+    setSyncStatus('⚠ خطأ في الحفظ — ' + e.message.slice(0,40), '#b83232');
+  }finally{ _syncing=false; }
+}
+
+setInterval(syncLoop, 3000);
+
+// ══════════════════════════════════════════════════════════════
+// LOCALSTORAGE fallback (يشتغل دايماً كـ backup)
+// ══════════════════════════════════════════════════════════════
+const STORE_KEY = 'creditNoteApp_v3';
+
+function getVal(id){ const el=document.getElementById(id); return el?el.value:''; }
+function setVal(id,val){
+  const el=document.getElementById(id); if(!el)return;
+  el.value=val||'';
+  if(el.tagName==='SELECT'){
+    let matched=false;
+    Array.from(el.options).forEach(o=>{ if(o.value===val||o.textContent===val){o.selected=true;matched=true;} });
+    if(!matched&&val) Array.from(el.options).forEach(o=>{ if(o.textContent.includes(val)||val.includes(o.value)){o.selected=true;} });
+  }
+}
+
+function saveState(){
+  markDirty();
+  try{
+    const fieldIds=['co-name','co-vat','co-cr','co-email','co-bldg','co-street','co-district','co-zip','co-city','co-sub','co-country',
+                    'cn-num-field','cn-date','curr-sel','cn-notes',
+                    'ser-prefix','ser-year','ser-num','ser-digits','ser-sep'];
+    const form={};
+    fieldIds.forEach(id=>{ form[id]=getVal(id); });
+    const state={ lang:currentLang, form, clients, lines, lineId,
+                  statusClass:document.getElementById('status-badge').className,
+                  statusText:document.getElementById('status-badge').textContent,
+                  logo:logoDataURL };
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    if(!raw) return false;
+    const s=JSON.parse(raw);
+    if(s.lang) currentLang=s.lang;
+    if(s.form) Object.entries(s.form).forEach(([id,v])=>setVal(id,v));
+    if(s.clients&&s.clients.length) clients=s.clients;
+    if(s.lines&&s.lines.length){ lines=s.lines; lineId=s.lineId||lines.length; }
+    if(s.statusClass){ document.getElementById('status-badge').className=s.statusClass; document.getElementById('status-badge').textContent=s.statusText||''; }
+    if(s.logo){
+      logoDataURL=s.logo;
+      document.getElementById('logo-ph').style.display='none';
+      const li=document.getElementById('logo-img'); li.src=logoDataURL; li.style.display='block';
+      document.getElementById('cn-logo-ph').style.display='none';
+      const ci=document.getElementById('cn-logo-img'); ci.src=logoDataURL; ci.style.display='block';
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
+// Auto-save on any interaction
+document.addEventListener('input',()=>{ setTimeout(saveState,400); });
+document.addEventListener('change',()=>{ setTimeout(saveState,400); });
+
+// Wrap mutating functions to also save + mark dirty
+const _addLineOrig=addLine, _delLineOrig=delLine, _saveClientOrig=saveClient, _deleteClientOrig=deleteClient;
+function addLine(item='',desc='',qty=1,price=0,disc=0,tax=15){ _addLineOrig(item,desc,qty,price,disc,tax); setTimeout(saveState,200); }
+function delLine(id){ _delLineOrig(id); setTimeout(saveState,200); }
+function saveClient(){ _saveClientOrig(); setTimeout(saveState,200); }
+function deleteClient(i){
+  const cl=clients[i];
+  if(cl&&cl._id&&sbConfigured) cloudDeleteClient(cl._id).catch(()=>{});
+  _deleteClientOrig(i); setTimeout(saveState,200);
+}
+
+// ──────────────────────────────────────────────
+// INIT — Cloud first, localStorage fallback
+// ──────────────────────────────────────────────
+async function initApp(){
+  setSyncStatus('⟳ جاري تحميل البيانات...', '#185FA5');
+  let loaded = false;
+  if(sbConfigured){
+    try{
+      await Promise.all([cloudLoadCompany(), cloudLoadSerial(), cloudLoadClients()]);
+      loaded = true;
+      setSyncStatus('✓ تم تحميل البيانات من Cloud', '#0e6e52');
+    }catch(e){
+      setSyncStatus('⚠ Cloud غير متاح — تم التحميل محلياً', '#92560a');
+    }
+  } else {
+    setSyncStatus('💡 غير مربوط بـ Supabase — حفظ محلي فقط', '#92560a');
+  }
+  if(!loaded){
+    const hadLocal = loadState();
+    if(!hadLocal){
+      lines=[]; lineId=0;
+      _addLineOrig('خدمة استشارية / Consulting','تقرير شهري',2,500,0,15);
+      _addLineOrig('منتج مرتجع / Returned Item','طلب إرجاع',5,120,10,15);
+    }
+  }
+  syncCo();
+  renderClients();
+  renderLines();
+  calcTotals();
+  updateSerialPreview();
+  setLang(currentLang);
+  document.getElementById('footer-bar').style.display='flex';
+  const _savedSerial=getVal('cn-num-field');
+  if(_savedSerial){ document.getElementById('cn-num-display').textContent=_savedSerial; }
+}
+
+initApp();
+</script>
+</body>
+</html>
