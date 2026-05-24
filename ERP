@@ -1,0 +1,1743 @@
+import { useState } from "react";
+
+
+// ─── part1.jsx ───
+// ═══════════════════════════ SEED DATA ═══════════════════════════
+const INIT = {
+  entities: [
+    { id:"e1", name_ar:"شركة المجد للاستشارات", name_en:"AlMajd Consulting KSA", vat:"310000000000003", cr:"1010000001", currency:"SAR" },
+    { id:"e2", name_ar:"فرع المجد الإمارات", name_en:"AlMajd UAE Branch", vat:"100000000000003", cr:"CN-123456", currency:"AED" },
+  ],
+  customers: [
+    { id:"c1", name_ar:"أرامكو السعودية", vat:"300000000000003", credit_limit:5000000, balance:3680000, currency:"SAR", contact:"Ibrahim Al-Dosari", email:"i.dosari@aramco.com" },
+    { id:"c2", name_ar:"سابك", vat:"300000000000004", credit_limit:3000000, balance:2070000, currency:"SAR", contact:"Nora Al-Harbi", email:"n.harbi@sabic.com" },
+    { id:"c3", name_ar:"وزارة الصحة", vat:"300000000000005", credit_limit:2000000, balance:1610000, currency:"SAR", contact:"Tariq Al-Zahrani", email:"t.zahrani@moh.gov.sa" },
+    { id:"c4", name_ar:"stc", vat:"300000000000006", credit_limit:1500000, balance:1035000, currency:"SAR", contact:"Layla Al-Ghamdi", email:"l.ghamdi@stc.com.sa" },
+  ],
+  vendors: [
+    { id:"v1", name_ar:"مايكروسوفت العربية", vat:"300000000000010", wht_rate:0.05, balance:185000, category:"software" },
+    { id:"v2", name_ar:"شركة الاتصالات", vat:"300000000000011", wht_rate:0, balance:42000, category:"utilities" },
+    { id:"v3", name_ar:"مكتب المراجعة الدولي", vat:"300000000000012", wht_rate:0.05, balance:95000, category:"professional" },
+    { id:"v4", name_ar:"شركة الأمن المعلوماتي", vat:"300000000000013", wht_rate:0.05, balance:67000, category:"software" },
+  ],
+  coa: [
+    { id:"a1100", code:"1100", name_ar:"النقد والبنوك", type:"Asset", sub:"current", balance:7842000, post:true },
+    { id:"a1120", code:"1120", name_ar:"بنك الرياض SAR", type:"Asset", sub:"current", balance:5240000, post:true },
+    { id:"a1125", code:"1125", name_ar:"بنك الرياض USD", type:"Asset", sub:"current", balance:2557000, post:true },
+    { id:"a1200", code:"1200", name_ar:"ذمم مدينة", type:"Asset", sub:"current", balance:8395000, post:true },
+    { id:"a1310", code:"1310", name_ar:"ضريبة مدخلات VAT", type:"Asset", sub:"current", balance:142500, post:true },
+    { id:"a1320", code:"1320", name_ar:"استرداد WHT", type:"Asset", sub:"current", balance:28000, post:true },
+    { id:"a1400", code:"1400", name_ar:"مصروفات مدفوعة مقدماً", type:"Asset", sub:"current", balance:280000, post:true },
+    { id:"a1500", code:"1500", name_ar:"أصول ثابتة", type:"Asset", sub:"fixed", balance:1850000, post:true },
+    { id:"a1510", code:"1510", name_ar:"مجمع الإهلاك", type:"Asset", sub:"fixed", balance:-420000, post:true },
+    { id:"a2100", code:"2100", name_ar:"ذمم دائنة", type:"Liability", sub:"current", balance:389000, post:true },
+    { id:"a2130", code:"2130", name_ar:"رواتب مستحقة", type:"Liability", sub:"current", balance:0, post:true },
+    { id:"a2200", code:"2200", name_ar:"التأمينات GOSI", type:"Liability", sub:"current", balance:156000, post:true },
+    { id:"a2310", code:"2310", name_ar:"ضريبة مخرجات VAT", type:"Liability", sub:"current", balance:880500, post:true },
+    { id:"a2320", code:"2320", name_ar:"استقطاع WHT", type:"Liability", sub:"current", balance:18500, post:true },
+    { id:"a2400", code:"2400", name_ar:"الزكاة مستحقة", type:"Liability", sub:"current", balance:320000, post:true },
+    { id:"a2500", code:"2500", name_ar:"مخصص نهاية الخدمة", type:"Liability", sub:"longterm", balance:1240000, post:true },
+    { id:"a3100", code:"3100", name_ar:"رأس المال", type:"Equity", sub:"equity", balance:5000000, post:false },
+    { id:"a3200", code:"3200", name_ar:"الأرباح المبقاة", type:"Equity", sub:"equity", balance:4180000, post:false },
+    { id:"a4100", code:"4100", name_ar:"إيراد الاستشارات", type:"Revenue", sub:"operating", balance:8940000, post:true },
+    { id:"a4110", code:"4110", name_ar:"الخدمات المُدارة", type:"Revenue", sub:"operating", balance:3100000, post:true },
+    { id:"a4120", code:"4120", name_ar:"إيراد المشاريع", type:"Revenue", sub:"operating", balance:1200000, post:true },
+    { id:"a4900", code:"4900", name_ar:"أرباح صرف أجنبي", type:"Revenue", sub:"other", balance:48000, post:true },
+    { id:"a5100", code:"5100", name_ar:"رواتب مباشرة", type:"Expense", sub:"cogs", balance:4820000, post:true },
+    { id:"a5110", code:"5110", name_ar:"تأمينات مباشرة GOSI", type:"Expense", sub:"cogs", balance:433800, post:true },
+    { id:"a5200", code:"5200", name_ar:"مقاولون من الباطن", type:"Expense", sub:"cogs", balance:1240000, post:true },
+    { id:"a6100", code:"6100", name_ar:"رواتب إدارية", type:"Expense", sub:"opex", balance:2340000, post:true },
+    { id:"a6110", code:"6110", name_ar:"تأمينات إدارية GOSI", type:"Expense", sub:"opex", balance:210600, post:true },
+    { id:"a6120", code:"6120", name_ar:"مصروف نهاية الخدمة", type:"Expense", sub:"opex", balance:124000, post:true },
+    { id:"a6200", code:"6200", name_ar:"إيجار", type:"Expense", sub:"opex", balance:480000, post:true },
+    { id:"a6210", code:"6210", name_ar:"إهلاك أصول", type:"Expense", sub:"opex", balance:140000, post:true },
+    { id:"a6300", code:"6300", name_ar:"رسوم مهنية", type:"Expense", sub:"opex", balance:320000, post:true },
+    { id:"a6500", code:"6500", name_ar:"تقنية المعلومات", type:"Expense", sub:"opex", balance:285000, post:true },
+    { id:"a6900", code:"6900", name_ar:"خسائر صرف أجنبي", type:"Expense", sub:"other", balance:12000, post:true },
+  ],
+  invoices: [
+    { id:"inv1", number:"INV-2025-0841", cust_id:"c1", date:"2025-01-15", due:"2025-02-14", sub:3200000, vat:480000, total:3680000, status:"posted", zatca:"cleared", currency:"SAR", proj_id:"pr1", lines:[{desc:"استشارات التحول الرقمي — المرحلة الأولى",qty:1,price:3200000,vat_rate:0.15}] },
+    { id:"inv2", number:"INV-2025-0842", cust_id:"c2", date:"2025-02-01", due:"2025-03-02", sub:1800000, vat:270000, total:2070000, status:"posted", zatca:"cleared", currency:"SAR", proj_id:"pr2", lines:[{desc:"تطبيق ERP — المرحلة الأولى",qty:1,price:1800000,vat_rate:0.15}] },
+    { id:"inv3", number:"INV-2025-0843", cust_id:"c3", date:"2025-03-01", due:"2025-03-31", sub:1400000, vat:210000, total:1610000, status:"posted", zatca:"pending", currency:"SAR", proj_id:"pr3", lines:[{desc:"خدمة تأمين الكوادر البشرية — مارس 2025",qty:1,price:1400000,vat_rate:0.15}] },
+    { id:"inv4", number:"INV-2025-0844", cust_id:"c4", date:"2025-03-15", due:"2025-04-14", sub:900000, vat:135000, total:1035000, status:"draft", zatca:null, currency:"SAR", proj_id:"pr4", lines:[{desc:"نقل البنية التحتية للسحابة",qty:1,price:900000,vat_rate:0.15}] },
+  ],
+  vendor_bills: [
+    { id:"vb1", number:"BILL-2025-0021", vendor_id:"v1", date:"2025-01-20", due:"2025-02-19", amount:185000, vat:27750, wht:9250, net:203500, status:"posted", wht_cert:"WHT-2025-001" },
+    { id:"vb2", number:"BILL-2025-0022", vendor_id:"v2", date:"2025-02-05", due:"2025-03-06", amount:42000, vat:6300, wht:0, net:48300, status:"posted", wht_cert:null },
+    { id:"vb3", number:"BILL-2025-0023", vendor_id:"v3", date:"2025-03-10", due:"2025-04-09", amount:95000, vat:14250, wht:4750, net:104500, status:"pending", wht_cert:null },
+  ],
+  journals: [
+    { id:"je1", ref:"JE-2025-0101", date:"2025-01-15", desc:"ترحيل فاتورة أرامكو INV-0841", status:"posted", source:"Sales", debit:3680000, credit:3680000,
+      lines:[{acc:"1200",dr:3680000,cr:0,desc:"ذمم مدينة — أرامكو"},{acc:"4100",dr:0,cr:3200000,desc:"إيراد استشارات"},{acc:"2310",dr:0,cr:480000,desc:"VAT مخرجات"}] },
+    { id:"je2", ref:"JE-2025-0102", date:"2025-02-01", desc:"ترحيل فاتورة سابك INV-0842", status:"posted", source:"Sales", debit:2070000, credit:2070000,
+      lines:[{acc:"1200",dr:2070000,cr:0,desc:"ذمم مدينة — سابك"},{acc:"4100",dr:0,cr:1800000,desc:"إيراد استشارات"},{acc:"2310",dr:0,cr:270000,desc:"VAT مخرجات"}] },
+    { id:"je3", ref:"JE-2025-0110", date:"2025-03-31", desc:"مسير الرواتب مارس 2025", status:"posted", source:"Payroll", debit:2048000, credit:2048000,
+      lines:[{acc:"5100",dr:1650000,cr:0,desc:"رواتب مباشرة"},{acc:"6100",dr:398000,cr:0,desc:"رواتب إدارية"},{acc:"2130",dr:0,cr:1848000,desc:"رواتب مستحقة"},{acc:"2200",dr:0,cr:200000,desc:"GOSI مستحق"}] },
+    { id:"je4", ref:"JE-2025-0111", date:"2025-02-19", desc:"دفعة مايكروسوفت BILL-0021", status:"posted", source:"Purchase", debit:203500, credit:203500,
+      lines:[{acc:"2100",dr:185000,cr:0,desc:"تسوية الذمة الدائنة"},{acc:"1310",dr:27750,cr:0,desc:"VAT مدخلات"},{acc:"1100",dr:0,cr:203500,desc:"مدفوع من البنك"},{acc:"2320",dr:0,cr:9250,desc:"WHT مستقطع"}] },
+    { id:"je5", ref:"JE-2025-0120", date:"2025-03-31", desc:"إهلاك شهر مارس 2025", status:"draft", source:"Manual", debit:46667, credit:46667,
+      lines:[{acc:"6210",dr:46667,cr:0,desc:"مصروف إهلاك"},{acc:"1510",dr:0,cr:46667,desc:"مجمع إهلاك"}] },
+  ],
+  employees: [
+    { id:"em1", number:"EMP-001", name_ar:"أحمد محمد السالم", nationality:"Saudi", id_no:"1234567890", iqama:null, gosi:"SN-0012501", grade:"G7", dept:"الاستشارات", basic:25000, housing:10000, transport:2000, mobile:500, medical:1000, hire_date:"2019-03-15" },
+    { id:"em2", number:"EMP-002", name_ar:"خالد عبدالله النصر", nationality:"Saudi", id_no:"1234567891", iqama:null, gosi:"SN-0012502", grade:"G6", dept:"تقنية المعلومات", basic:18000, housing:7500, transport:2000, mobile:500, medical:1000, hire_date:"2020-07-01" },
+    { id:"em3", number:"EMP-003", name_ar:"John Smith", nationality:"British", id_no:null, iqama:"2145678901", gosi:"EX-0012503", grade:"G8", dept:"الاستشارات", basic:35000, housing:15000, transport:3000, mobile:1000, medical:2000, hire_date:"2021-01-10" },
+    { id:"em4", number:"EMP-004", name_ar:"سارة الرشيدي", nationality:"Saudi", id_no:"1234567892", iqama:null, gosi:"SN-0012504", grade:"G5", dept:"الموارد البشرية", basic:14000, housing:6000, transport:2000, mobile:500, medical:1000, hire_date:"2022-04-05" },
+    { id:"em5", number:"EMP-005", name_ar:"Raj Kumar", nationality:"Indian", id_no:null, iqama:"2145678902", gosi:"EX-0012505", grade:"G6", dept:"تقنية المعلومات", basic:15000, housing:6000, transport:2000, mobile:500, medical:1000, hire_date:"2021-09-15" },
+    { id:"em6", number:"EMP-006", name_ar:"نورة الحارثي", nationality:"Saudi", id_no:"1234567893", iqama:null, gosi:"SN-0012506", grade:"G6", dept:"المبيعات", basic:16000, housing:7000, transport:2000, mobile:500, medical:1000, hire_date:"2021-11-20" },
+  ],
+  projects: [
+    { id:"pr1", name:"تحول رقمي — أرامكو", cust_id:"c1", type:"Fixed", budget:3200000, actual:2180000, invoiced:3680000, status:"active", pct:68, pm:"em1", start:"2025-01-01", end:"2025-06-30" },
+    { id:"pr2", name:"ERP Implementation — SABIC", cust_id:"c2", type:"T&M", budget:1800000, actual:1650000, invoiced:2070000, status:"at_risk", pct:82, pm:"em3", start:"2025-02-01", end:"2025-05-31" },
+    { id:"pr3", name:"HR Outsourcing — MOH", cust_id:"c3", type:"Retainer", budget:1400000, actual:890000, invoiced:1610000, status:"active", pct:45, pm:"em1", start:"2025-01-01", end:"2025-12-31" },
+    { id:"pr4", name:"Cloud Migration — STC", cust_id:"c4", type:"T&M", budget:900000, actual:960000, invoiced:1035000, status:"overbudget", pct:91, pm:"em2", start:"2025-01-15", end:"2025-04-30" },
+  ],
+  timesheets: [
+    { id:"ts1", emp_id:"em1", proj_id:"pr1", date:"2025-03-01", hours:8, rate:750, amount:6000, status:"approved" },
+    { id:"ts2", emp_id:"em3", proj_id:"pr1", date:"2025-03-01", hours:8, rate:1200, amount:9600, status:"approved" },
+    { id:"ts3", emp_id:"em2", proj_id:"pr4", date:"2025-03-02", hours:8, rate:600, amount:4800, status:"pending" },
+    { id:"ts4", emp_id:"em5", proj_id:"pr2", date:"2025-03-03", hours:8, rate:600, amount:4800, status:"approved" },
+  ],
+  payroll_runs: [
+    { id:"pay1", period:"مارس 2025", month:3, year:2025, status:"approved", gross:1968000, gosi_emp:177120, gosi_co:177120, net:1790880, headcount:52 },
+    { id:"pay2", period:"فبراير 2025", month:2, year:2025, status:"posted", gross:1940000, gosi_emp:174600, gosi_co:174600, net:1765400, headcount:51 },
+    { id:"pay3", period:"يناير 2025", month:1, year:2025, status:"posted", gross:1920000, gosi_emp:172800, gosi_co:172800, net:1747200, headcount:50 },
+  ],
+  approvals: [
+    { id:"ap1", type:"purchase_order", ref:"PO-2025-0055", amount:450000, requester:"خالد النصر", status:"pending", level:"مدير المالية", date:"2025-03-18", detail:"شراء تراخيص Azure Cloud ربع سنوي" },
+    { id:"ap2", type:"payment", ref:"PAY-2025-0032", amount:1200000, requester:"أحمد السالم", status:"pending", level:"المدير المالي CFO", date:"2025-03-19", detail:"دفعة لأرامكو — تسوية عقد التحول الرقمي" },
+    { id:"ap3", type:"payroll", ref:"PAYROLL-MAR-2025", amount:1790880, requester:"سارة الرشيدي", status:"pending", level:"المدير المالي CFO", date:"2025-03-20", detail:"مسير رواتب مارس 2025 — 52 موظف" },
+    { id:"ap4", type:"expense", ref:"EXP-2025-0088", amount:18500, requester:"نورة الحارثي", status:"approved", level:"مدير القسم", date:"2025-03-21", detail:"مصاريف سفر الرياض / الدمام" },
+    { id:"ap5", type:"credit_note", ref:"CN-2025-0003", amount:85000, requester:"أحمد السالم", status:"rejected", level:"مدير المالية", date:"2025-03-22", detail:"إشعار دائن لسابك — خصم خدمات متأخرة" },
+  ],
+  bank_accounts: [
+    { id:"ba1", name:"بنك الرياض — تشغيل SAR", bank:"Riyad Bank", iban:"SA0380000000608010167519", currency:"SAR", balance:5240000 },
+    { id:"ba2", name:"بنك الرياض — USD", bank:"Riyad Bank", iban:"SA0380000000608010167520", currency:"USD", balance:681867 },
+    { id:"ba3", name:"بنك الراجحي — رواتب", bank:"Al Rajhi Bank", iban:"SA7380000338608010167522", currency:"SAR", balance:1200000 },
+  ],
+  fx_rates: [
+    { currency:"USD", rate:3.75, date:"2025-03-31" },
+    { currency:"EUR", rate:4.065, date:"2025-03-31" },
+    { currency:"AED", rate:1.0205, date:"2025-03-31" },
+    { currency:"GBP", rate:4.728, date:"2025-03-31" },
+    { currency:"KWD", rate:12.195, date:"2025-03-31" },
+  ],
+  purchase_orders: [
+    { id:"po1", ref:"PO-2025-0051", vendor_id:"v1", date:"2025-01-10", desc:"تراخيص Microsoft 365 سنوية", amount:185000, vat:27750, wht:9250, net:203500, status:"approved" },
+    { id:"po2", ref:"PO-2025-0052", vendor_id:"v2", date:"2025-02-01", desc:"خدمات الاتصالات فبراير", amount:42000, vat:6300, wht:0, net:48300, status:"approved" },
+    { id:"po3", ref:"PO-2025-0055", vendor_id:"v1", date:"2025-03-18", desc:"تراخيص Azure Cloud ربع سنوي", amount:450000, vat:67500, wht:22500, net:495000, status:"pending_approval" },
+  ],
+  notifications: [
+    { id:"n1", type:"warning", title:"3 فواتير ZATCA معلقة", body:"يجب الإرسال خلال 24 ساعة", time:"منذ ساعة", read:false },
+    { id:"n2", type:"danger", title:"مستحقات +60 يوم — SAR 1.2M", body:"5 عملاء يتجاوزون حد الائتمان", time:"منذ 3 ساعات", read:false },
+    { id:"n3", type:"info", title:"مسير الرواتب جاهز للاعتماد", body:"مارس 2025 — 52 موظف", time:"منذ 5 ساعات", read:false },
+    { id:"n4", type:"success", title:"تمت تسوية حساب بنك الرياض", body:"123 معاملة مطابقة تلقائياً", time:"أمس", read:true },
+  ],
+  audit_log: [
+    { id:"al1", user:"محمد العتيبي", action:"APPROVE", module:"Payroll", ref:"PAYROLL-FEB-2025", time:"2025-03-01 09:14", ip:"10.0.1.45" },
+    { id:"al2", user:"أحمد السالم", action:"POST", module:"Invoices", ref:"INV-2025-0841", time:"2025-01-15 11:22", ip:"10.0.1.32" },
+    { id:"al3", user:"خالد النصر", action:"CREATE", module:"PurchaseOrder", ref:"PO-2025-0055", time:"2025-03-18 14:05", ip:"10.0.1.28" },
+    { id:"al4", user:"سارة الرشيدي", action:"RUN", module:"Payroll", ref:"PAYROLL-MAR-2025", time:"2025-03-20 10:30", ip:"10.0.1.41" },
+    { id:"al5", user:"نورة الحارثي", action:"CREATE", module:"Expense", ref:"EXP-2025-0088", time:"2025-03-21 08:55", ip:"10.0.1.37" },
+  ],
+};
+
+// ═══════════════════════ HELPERS ═══════════════════════
+const fmtN = n => new Intl.NumberFormat("en-SA").format(Math.round(Number(n)||0));
+const today = () => new Date().toISOString().split("T")[0];
+const gGross = e => (e.basic||0)+(e.housing||0)+(e.transport||0)+(e.mobile||0)+(e.medical||0);
+const gGOSI_emp = e => e.nationality==="Saudi" ? e.basic*0.09 : e.basic*0.02;
+const gGOSI_co  = e => e.nationality==="Saudi" ? e.basic*0.09 : 0;
+const gNet  = e => gGross(e) - gGOSI_emp(e);
+const gEOS  = e => {
+  const yrs = (Date.now()-new Date(e.hire_date))/(365.25*86400000);
+  if(yrs<2) return 0;
+  if(yrs<5) return (e.basic/2)*Math.floor(yrs);
+  return e.basic*Math.floor(yrs);
+};
+
+// ═══════════════════════ UI ATOMS ═══════════════════════
+const BC = {
+  green:["#E1F5EE","#085041"], red:["#FCEBEB","#791F1F"], amber:["#FAEEDA","#633806"],
+  blue:["#E6F1FB","#0C447C"], purple:["#EEEDFE","#3C3489"], gray:["#F1EFE8","#5F5E5A"],
+  teal:["#E1F5EE","#0F6E56"], coral:["#FAECE7","#712B13"],
+};
+const Bdg = ({c="gray",sm,children}) => {
+  const [bg,tc]=BC[c]||BC.gray;
+  return <span style={{fontSize:sm?10:11,padding:sm?"1px 6px":"2px 8px",borderRadius:10,background:bg,color:tc,fontWeight:500,whiteSpace:"nowrap",display:"inline-block"}}>{children}</span>;
+};
+const KPI = ({label,value,delta,up,icon,color="#1D9E75"}) => (
+  <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:"12px 14px",position:"relative",overflow:"hidden"}}>
+    {icon&&<i className={`ti ${icon}`} style={{position:"absolute",right:10,top:10,fontSize:22,color,opacity:0.15}} aria-hidden="true"/>}
+    <div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:4}}>{label}</div>
+    <div style={{fontSize:20,fontWeight:500,color:"var(--color-text-primary)",lineHeight:1.15}}>{value}</div>
+    {delta&&<div style={{fontSize:11,marginTop:3,color:up?"var(--color-text-success)":up===false?"var(--color-text-danger)":"var(--color-text-secondary)"}}>{delta}</div>}
+  </div>
+);
+const MBar = ({label,value,max,color,note}) => (
+  <div style={{marginBottom:8}}>
+    <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+      <span style={{fontSize:12,color:"var(--color-text-primary)"}}>{label}</span>
+      <span style={{fontSize:11,fontFamily:"monospace",color:"var(--color-text-secondary)"}}>{fmtN(value)}</span>
+    </div>
+    <div style={{height:5,background:"var(--color-background-tertiary)",borderRadius:3,overflow:"hidden"}}>
+      <div style={{height:"100%",width:`${Math.min(100,max?(value/max)*100:0)}%`,background:color,borderRadius:3}}/>
+    </div>
+    {note&&<div style={{fontSize:10,color:"var(--color-text-tertiary)",marginTop:2}}>{note}</div>}
+  </div>
+);
+const Tbl = ({cols,rows,onRow,empty="لا توجد بيانات"}) => (
+  <div style={{overflowX:"auto"}}>
+    <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+      <thead>
+        <tr style={{background:"var(--color-background-secondary)"}}>
+          {cols.map((c,i)=><th key={i} style={{textAlign:c.r?"right":"left",padding:"7px 10px",fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",borderBottom:"0.5px solid var(--color-border-secondary)",whiteSpace:"nowrap"}}>{c.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {!rows.length
+          ? <tr><td colSpan={cols.length} style={{textAlign:"center",padding:20,color:"var(--color-text-tertiary)"}}>{empty}</td></tr>
+          : rows.map((row,ri)=>(
+            <tr key={ri} onClick={()=>onRow?.(row)}
+              style={{borderBottom:"0.5px solid var(--color-border-tertiary)",cursor:onRow?"pointer":"default"}}
+              onMouseEnter={e=>{if(onRow)e.currentTarget.style.background="var(--color-background-secondary)"}}
+              onMouseLeave={e=>{e.currentTarget.style.background=""}}>
+              {cols.map((c,ci)=><td key={ci} style={{padding:"8px 10px",textAlign:c.r?"right":"left",fontFamily:c.mono?"monospace":"inherit",fontSize:c.sm?11:12,whiteSpace:c.wrap?"normal":"nowrap"}}>{c.fn?c.fn(row):row[c.key]}</td>)}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+);
+const Modal = ({title,onClose,children,wide}) => (
+  <div onClick={e=>{if(e.target===e.currentTarget)onClose()}} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.5)",zIndex:200,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:48,paddingBottom:20,overflowY:"auto"}}>
+    <div style={{background:"var(--color-background-primary)",borderRadius:"var(--border-radius-lg)",border:"0.5px solid var(--color-border-secondary)",width:"100%",maxWidth:wide?720:520,margin:"0 16px",flexShrink:0}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <span style={{fontWeight:500,fontSize:14}}>{title}</span>
+        <button onClick={onClose} style={{border:"none",background:"none",cursor:"pointer",fontSize:18,color:"var(--color-text-secondary)",lineHeight:1,padding:4}} aria-label="إغلاق">✕</button>
+      </div>
+      <div style={{padding:16}}>{children}</div>
+    </div>
+  </div>
+);
+const Card = ({title,action,noPad,children}) => (
+  <div style={{background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:"var(--border-radius-lg)",overflow:"hidden"}}>
+    {title&&<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",background:"var(--color-background-secondary)"}}>
+      <span style={{fontWeight:500,fontSize:13}}>{title}</span>{action}
+    </div>}
+    <div style={noPad?{}:{padding:14}}>{children}</div>
+  </div>
+);
+const SecHead = ({children}) => <div style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",padding:"7px 14px 5px",background:"var(--color-background-tertiary)",textTransform:"uppercase",letterSpacing:".04em"}}>{children}</div>;
+const PRow = ({children}) => <div style={{padding:16,display:"flex",flexDirection:"column",gap:14}}>{children}</div>;
+const G2 = ({children}) => <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>{children}</div>;
+const Fld = ({label,children}) => <div style={{marginBottom:10}}><div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:3}}>{label}</div>{children}</div>;
+const TabBar = ({tabs,active,onChange,actions}) => (
+  <div style={{display:"flex",alignItems:"center",borderBottom:"0.5px solid var(--color-border-tertiary)",gap:2}}>
+    {tabs.map(([id,label])=>(
+      <button key={id} onClick={()=>onChange(id)} style={{fontSize:12,padding:"8px 14px",border:"none",background:active===id?"var(--color-background-primary)":"transparent",color:active===id?"var(--color-text-info)":"var(--color-text-secondary)",cursor:"pointer",fontWeight:active===id?500:400,borderBottom:active===id?"2px solid var(--color-border-info)":"2px solid transparent",marginBottom:-1}}>{label}</button>
+    ))}
+    {actions&&<div style={{marginLeft:"auto",paddingRight:16}}>{actions}</div>}
+  </div>
+);
+
+// ─── part2.jsx ───
+// ═══════════════════════ NAV ═══════════════════════
+const NAV=[
+  {id:"dashboard",icon:"ti-layout-dashboard",label:"لوحة التحكم"},
+  {id:"accounting",icon:"ti-book-2",label:"المحاسبة"},
+  {id:"sales",icon:"ti-file-invoice",label:"المبيعات"},
+  {id:"purchase",icon:"ti-shopping-cart",label:"المشتريات"},
+  {id:"projects",icon:"ti-briefcase",label:"المشاريع"},
+  {id:"hr",icon:"ti-users",label:"HR والرواتب"},
+  {id:"tax",icon:"ti-receipt-tax",label:"الضرائب & ZATCA"},
+  {id:"banking",icon:"ti-building-bank",label:"البنوك"},
+  {id:"approvals",icon:"ti-checks",label:"الموافقات"},
+  {id:"reports",icon:"ti-chart-bar",label:"التقارير"},
+  {id:"audit",icon:"ti-list-search",label:"سجل المراجعة"},
+  {id:"settings",icon:"ti-settings",label:"الإعدادات"},
+];
+
+const Sidebar = ({active,onNav,col}) => (
+  <div style={{width:col?52:196,flexShrink:0,background:"var(--color-background-primary)",borderRight:"0.5px solid var(--color-border-tertiary)",display:"flex",flexDirection:"column",transition:"width .18s ease",overflow:"hidden"}}>
+    <div style={{padding:"12px",borderBottom:"0.5px solid var(--color-border-tertiary)",display:"flex",alignItems:"center",gap:8}}>
+      <div style={{width:28,height:28,borderRadius:8,background:"#1D9E75",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+        <i className="ti ti-building-skyscraper" style={{fontSize:14,color:"#fff"}} aria-hidden="true"/>
+      </div>
+      {!col&&<div style={{overflow:"hidden"}}>
+        <div style={{fontSize:12,fontWeight:500,color:"var(--color-text-primary)",whiteSpace:"nowrap"}}>AlMajd ERP</div>
+        <div style={{fontSize:10,color:"var(--color-text-tertiary)",whiteSpace:"nowrap"}}>v2.0 · KSA · ZATCA P2</div>
+      </div>}
+    </div>
+    <nav style={{flex:1,overflowY:"auto",padding:"6px 0"}}>
+      {NAV.map(n=>{
+        const on=active===n.id;
+        return(
+          <button key={n.id} onClick={()=>onNav(n.id)} title={col?n.label:undefined}
+            style={{width:"100%",display:"flex",alignItems:"center",gap:9,padding:"8px 12px",border:"none",background:on?"var(--color-background-info)":"transparent",color:on?"var(--color-text-info)":"var(--color-text-secondary)",cursor:"pointer",textAlign:"left",fontSize:12,fontWeight:on?500:400,borderLeft:`2px solid ${on?"var(--color-border-info)":"transparent"}`,transition:"background .12s",whiteSpace:"nowrap"}}
+            onMouseEnter={e=>{if(!on)e.currentTarget.style.background="var(--color-background-secondary)"}}
+            onMouseLeave={e=>{if(!on)e.currentTarget.style.background="transparent"}}>
+            <i className={`ti ${n.icon}`} style={{fontSize:16,flexShrink:0}} aria-hidden="true"/>
+            {!col&&n.label}
+          </button>
+        );
+      })}
+    </nav>
+    <div style={{padding:"10px 12px",borderTop:"0.5px solid var(--color-border-tertiary)",display:"flex",alignItems:"center",gap:8}}>
+      <div style={{width:28,height:28,borderRadius:"50%",background:"#EEEDFE",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:500,color:"#3C3489",flexShrink:0}}>CFO</div>
+      {!col&&<div style={{overflow:"hidden"}}>
+        <div style={{fontSize:11,fontWeight:500,color:"var(--color-text-primary)",whiteSpace:"nowrap"}}>محمد العتيبي</div>
+        <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>المدير المالي</div>
+      </div>}
+    </div>
+  </div>
+);
+
+const Topbar = ({title,sub,onToggle,nCount,onNotif}) => (
+  <div style={{display:"flex",alignItems:"center",gap:10,padding:"9px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)",background:"var(--color-background-primary)",flexShrink:0}}>
+    <button onClick={onToggle} style={{border:"none",background:"none",cursor:"pointer",color:"var(--color-text-secondary)",padding:4,fontSize:18}} aria-label="قائمة"><i className="ti ti-menu-2" aria-hidden="true"/></button>
+    <div style={{flex:1}}>
+      <div style={{fontWeight:500,fontSize:14,color:"var(--color-text-primary)"}}>{title}</div>
+      {sub&&<div style={{fontSize:11,color:"var(--color-text-tertiary)"}}>{sub}</div>}
+    </div>
+    <Bdg c="teal">SAR · IFRS</Bdg>
+    <Bdg c="blue">ZATCA Phase 2</Bdg>
+    <div style={{position:"relative"}}>
+      <button onClick={onNotif} style={{border:"0.5px solid var(--color-border-secondary)",background:"none",cursor:"pointer",borderRadius:"var(--border-radius-md)",padding:"5px 8px",color:"var(--color-text-secondary)",fontSize:15,display:"flex",alignItems:"center"}} aria-label="إشعارات">
+        <i className="ti ti-bell" aria-hidden="true"/>
+      </button>
+      {nCount>0&&<span style={{position:"absolute",top:-4,right:-4,background:"#E24B4A",color:"#fff",fontSize:9,width:16,height:16,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:500}}>{nCount}</span>}
+    </div>
+  </div>
+);
+
+const NotifPanel = ({data,setData,onClose}) => (
+  <div style={{position:"absolute",top:48,right:16,width:340,background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-secondary)",borderRadius:"var(--border-radius-lg)",zIndex:300}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+      <span style={{fontWeight:500,fontSize:13}}>الإشعارات</span>
+      <button onClick={()=>{setData(d=>({...d,notifications:d.notifications.map(n=>({...n,read:true}))}));onClose();}} style={{fontSize:11,padding:"2px 8px"}}>تعيين الكل مقروءاً</button>
+    </div>
+    {data.notifications.map(n=>(
+      <div key={n.id} style={{padding:"10px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",background:n.read?"transparent":"var(--color-background-secondary)",display:"flex",gap:10,alignItems:"flex-start"}}>
+        <i className={`ti ${n.type==="warning"?"ti-alert-triangle":n.type==="danger"?"ti-alert-circle":n.type==="success"?"ti-circle-check":"ti-info-circle"}`} style={{fontSize:15,color:`var(--color-text-${n.type})`,marginTop:1,flexShrink:0}} aria-hidden="true"/>
+        <div style={{flex:1}}>
+          <div style={{fontSize:12,fontWeight:n.read?400:500}}>{n.title}</div>
+          <div style={{fontSize:11,color:"var(--color-text-secondary)",marginTop:2}}>{n.body}</div>
+          <div style={{fontSize:10,color:"var(--color-text-tertiary)",marginTop:3}}>{n.time}</div>
+        </div>
+        {!n.read&&<span style={{width:7,height:7,borderRadius:"50%",background:"#378ADD",flexShrink:0,marginTop:4}}/>}
+      </div>
+    ))}
+  </div>
+);
+
+// ═══════════════════════ DASHBOARD ═══════════════════════
+const Dashboard = ({data}) => {
+  const rev=data.invoices.filter(i=>i.status==="posted").reduce((s,i)=>s+i.sub,0);
+  const ar=data.customers.reduce((s,c)=>s+c.balance,0);
+  const cash=data.bank_accounts.reduce((s,b)=>s+(b.currency==="SAR"?b.balance:b.currency==="USD"?b.balance*3.75:b.balance),0);
+  const pendZ=data.invoices.filter(i=>i.zatca==="pending").length;
+  const pendA=data.approvals.filter(a=>a.status==="pending").length;
+  return(
+    <PRow>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        <KPI label="الإيرادات Q1 2025" value={`${fmtN(rev/1000000)}M SAR`} delta="↑ 18% مقارنة Q1 2024" up icon="ti-trending-up" color="#1D9E75"/>
+        <KPI label="هامش الربح الإجمالي" value="38.2%" delta="↑ 3.1pp فوق الميزانية" up icon="ti-chart-pie" color="#534AB7"/>
+        <KPI label="الذمم المدينة AR" value={`${fmtN(ar/1000000)}M SAR`} delta="متوسط DSO: 22 يوم" icon="ti-clock-dollar" color="#D85A30"/>
+        <KPI label="النقدية الإجمالية" value={`${fmtN(cash/1000000)}M SAR`} delta="3 بنوك · 2 عملات" up icon="ti-building-bank" color="#378ADD"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+        <Card title="الإيراد حسب خط الخدمة">
+          <MBar label="استشارات" value={8940000} max={13288000} color="#1D9E75" note="SAR 8.94M"/>
+          <MBar label="خدمات مُدارة" value={3100000} max={13288000} color="#534AB7" note="SAR 3.10M"/>
+          <MBar label="مشاريع" value={1200000} max={13288000} color="#D85A30" note="SAR 1.20M"/>
+          <MBar label="أرباح FX" value={48000} max={13288000} color="#BA7517" note="SAR 48K"/>
+        </Card>
+        <Card title="ربحية المشاريع">
+          {data.projects.map(p=>{
+            const pct=Math.min(150,Math.round((p.actual/p.budget)*100));
+            const col=p.status==="overbudget"?"#E24B4A":p.status==="at_risk"?"#BA7517":"#1D9E75";
+            return(
+              <div key={p.id} style={{marginBottom:8}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                  <span style={{fontSize:11,overflow:"hidden",textOverflow:"ellipsis",maxWidth:140,whiteSpace:"nowrap"}}>{p.name}</span>
+                  <span style={{fontSize:10,color:col,fontWeight:500}}>{pct}%</span>
+                </div>
+                <div style={{height:5,background:"var(--color-background-tertiary)",borderRadius:3,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${Math.min(100,pct)}%`,background:col,borderRadius:3}}/>
+                </div>
+              </div>
+            );
+          })}
+        </Card>
+        <Card title="مؤشرات الامتثال">
+          {[
+            ["ZATCA Phase 2",pendZ>0?"amber":"green",pendZ>0?`${pendZ} معلق`:"مطابق ✓"],
+            ["VAT إقرار Q1","amber","يستحق خلال 12 يوم"],
+            ["GOSI فبراير","green","تم السداد ✓"],
+            ["Qiwa السعودة","green",`${Math.round(data.employees.filter(e=>e.nationality==="Saudi").length/data.employees.length*100)}% ✓`],
+            ["موافقات معلقة",pendA>0?"red":"green",pendA>0?`${pendA} تحتاج قراراً`:"لا شيء معلق"],
+            ["WHT مستحق","amber","SAR 18,500"],
+          ].map(([l,c,v])=>(
+            <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+              <span style={{fontSize:12}}>{l}</span><Bdg c={c} sm>{v}</Bdg>
+            </div>
+          ))}
+        </Card>
+      </div>
+      <Card title="آخر القيود المحاسبية" noPad>
+        <Tbl rows={data.journals.slice(0,5)} cols={[
+          {key:"ref",label:"المرجع",mono:true},
+          {key:"date",label:"التاريخ"},
+          {key:"desc",label:"البيان",wrap:true},
+          {key:"source",label:"المصدر",fn:r=><Bdg c={r.source==="Sales"?"teal":r.source==="Payroll"?"purple":r.source==="Purchase"?"amber":"gray"} sm>{r.source}</Bdg>},
+          {key:"debit",label:"المبلغ",r:true,mono:true,fn:r=>fmtN(r.debit)},
+          {key:"status",label:"",fn:r=><Bdg c={r.status==="posted"?"green":"amber"} sm>{r.status==="posted"?"مُرحَّل":"مسودة"}</Bdg>},
+        ]}/>
+      </Card>
+    </PRow>
+  );
+};
+
+// ═══════════════════════ ACCOUNTING ═══════════════════════
+const Accounting = ({data,setData}) => {
+  const [tab,setTab]=useState("journals");
+  const [modal,setModal]=useState(false);
+  const [exp,setExp]=useState(null);
+  const [f,setF]=useState({date:today(),desc:"",dr:"",cr:"",amount:"",cc:""});
+
+  const assets=data.coa.filter(a=>a.type==="Asset").reduce((s,a)=>s+a.balance,0);
+  const liab=data.coa.filter(a=>a.type==="Liability").reduce((s,a)=>s+a.balance,0);
+  const equity=data.coa.filter(a=>a.type==="Equity").reduce((s,a)=>s+a.balance,0);
+  const rev=data.coa.filter(a=>a.type==="Revenue").reduce((s,a)=>s+a.balance,0);
+  const exp2=data.coa.filter(a=>a.type==="Expense").reduce((s,a)=>s+a.balance,0);
+  const drTot=data.coa.filter(a=>a.type==="Asset"||a.type==="Expense").reduce((s,a)=>s+Math.abs(a.balance),0);
+  const crTot=data.coa.filter(a=>a.type==="Liability"||a.type==="Equity"||a.type==="Revenue").reduce((s,a)=>s+a.balance,0);
+
+  const save=()=>{
+    if(!f.desc||!f.amount||!f.dr||!f.cr) return;
+    const amt=parseFloat(f.amount);
+    const je={id:`je_${Date.now()}`,ref:`JE-2025-${String(data.journals.length+200).padStart(4,"0")}`,date:f.date,desc:f.desc,status:"draft",source:"Manual",debit:amt,credit:amt,
+      lines:[{acc:data.coa.find(a=>a.id===f.dr)?.code,dr:amt,cr:0,desc:f.desc},{acc:data.coa.find(a=>a.id===f.cr)?.code,dr:0,cr:amt,desc:f.desc}]};
+    setData(d=>({...d,journals:[je,...d.journals]}));
+    setModal(false);setF({date:today(),desc:"",dr:"",cr:"",amount:"",cc:""});
+  };
+  const postDraft=id=>setData(d=>({...d,journals:d.journals.map(j=>j.id===id?{...j,status:"posted"}:j)}));
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+          <KPI label="إجمالي الأصول" value={`${fmtN(assets/1000000)}M`}/>
+          <KPI label="إجمالي الالتزامات" value={`${fmtN(liab/1000000)}M`}/>
+          <KPI label="حقوق الملكية" value={`${fmtN(equity/1000000)}M`}/>
+          <KPI label="صافي الإيراد" value={`${fmtN(rev/1000000)}M`} up/>
+          <KPI label="صافي الربح" value={`${fmtN((rev-exp2)/1000000)}M`} up delta={`هامش ${Math.round((rev-exp2)/rev*100)}%`}/>
+        </div>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["journals","القيود"],["coa","دليل الحسابات"],["tb","ميزان المراجعة"],["gl","الأستاذ العام"]]}
+          active={tab} onChange={setTab}
+          actions={<button style={{fontSize:12}} onClick={()=>setModal(true)}>+ قيد جديد</button>}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+        {tab==="journals"&&(
+          <Card noPad>
+            <Tbl rows={data.journals} cols={[
+              {key:"ref",label:"المرجع",mono:true},
+              {key:"date",label:"التاريخ"},
+              {key:"desc",label:"البيان",wrap:true},
+              {key:"source",label:"المصدر",fn:r=><Bdg c={r.source==="Sales"?"teal":r.source==="Payroll"?"purple":r.source==="Purchase"?"amber":"gray"} sm>{r.source}</Bdg>},
+              {key:"debit",label:"مدين",r:true,mono:true,fn:r=>fmtN(r.debit)},
+              {key:"credit",label:"دائن",r:true,mono:true,fn:r=>fmtN(r.credit)},
+              {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="posted"?"green":"amber"} sm>{r.status==="posted"?"مُرحَّل":"مسودة"}</Bdg>},
+              {key:"act",label:"",fn:r=>(
+                <div style={{display:"flex",gap:4}}>
+                  <button onClick={()=>setExp(exp===r.id?null:r.id)} style={{fontSize:10,padding:"2px 6px"}}>{exp===r.id?"إخفاء":"تفاصيل"}</button>
+                  {r.status==="draft"&&<button onClick={()=>postDraft(r.id)} style={{fontSize:10,padding:"2px 6px",background:"var(--color-background-success)",color:"var(--color-text-success)",borderColor:"var(--color-border-success)"}}>ترحيل ↗</button>}
+                </div>
+              )},
+            ]}/>
+            {exp&&(()=>{
+              const je=data.journals.find(j=>j.id===exp);
+              if(!je?.lines) return null;
+              return(
+                <div style={{background:"var(--color-background-secondary)",borderTop:"0.5px solid var(--color-border-secondary)",padding:14}}>
+                  <div style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",marginBottom:8,textTransform:"uppercase"}}>أسطر القيد — {je.ref}</div>
+                  <div style={{display:"grid",gridTemplateColumns:"70px 1fr 110px 110px",gap:8,padding:"4px 0 6px",borderBottom:"0.5px solid var(--color-border-secondary)"}}>
+                    {["الحساب","البيان","مدين","دائن"].map((h,i)=><span key={i} style={{fontSize:10,fontWeight:500,color:"var(--color-text-tertiary)",textAlign:i>1?"right":"left"}}>{h}</span>)}
+                  </div>
+                  {je.lines.map((l,i)=>(
+                    <div key={i} style={{display:"grid",gridTemplateColumns:"70px 1fr 110px 110px",gap:8,padding:"5px 0",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12,alignItems:"center"}}>
+                      <span style={{fontFamily:"monospace",color:"var(--color-text-info)",fontSize:11}}>{l.acc}</span>
+                      <span style={{color:"var(--color-text-secondary)",paddingLeft:l.dr===0?16:0}}>{l.desc}</span>
+                      <span style={{textAlign:"right",fontFamily:"monospace",color:l.dr>0?"var(--color-text-primary)":"var(--color-text-tertiary)"}}>{l.dr>0?fmtN(l.dr):""}</span>
+                      <span style={{textAlign:"right",fontFamily:"monospace",color:l.cr>0?"var(--color-text-primary)":"var(--color-text-tertiary)"}}>{l.cr>0?fmtN(l.cr):""}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </Card>
+        )}
+        {tab==="coa"&&(
+          <Card noPad>
+            {["Asset","Liability","Equity","Revenue","Expense"].map(type=>{
+              const MAP={Asset:["أصول","blue"],Liability:["التزامات","red"],Equity:["حقوق الملكية","purple"],Revenue:["إيرادات","teal"],Expense:["مصروفات","amber"]};
+              const [lbl,col]=MAP[type];
+              const items=data.coa.filter(a=>a.type===type);
+              const tot=items.reduce((s,a)=>s+a.balance,0);
+              return(
+                <div key={type}>
+                  <div style={{display:"flex",justifyContent:"space-between",padding:"7px 14px",background:"var(--color-background-tertiary)",borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                    <span style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",textTransform:"uppercase",letterSpacing:".04em"}}>{lbl}</span>
+                    <span style={{fontFamily:"monospace",fontSize:11,color:"var(--color-text-secondary)"}}>{fmtN(tot)}</span>
+                  </div>
+                  {items.map(a=>(
+                    <div key={a.id} style={{display:"grid",gridTemplateColumns:"70px 1fr 90px 60px",gap:8,padding:"6px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12,alignItems:"center"}}>
+                      <span style={{fontFamily:"monospace",color:"var(--color-text-info)",fontSize:11}}>{a.code}</span>
+                      <span>{a.name_ar}</span>
+                      <span style={{textAlign:"right",fontFamily:"monospace",color:a.balance<0?"var(--color-text-danger)":"inherit"}}>{fmtN(Math.abs(a.balance))}</span>
+                      <span style={{textAlign:"right"}}><Bdg c={col} sm>{type==="Asset"||type==="Expense"?"DR":"CR"}</Bdg></span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </Card>
+        )}
+        {tab==="tb"&&(
+          <div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:14}}>
+              <KPI label="إجمالي المدين" value={fmtN(drTot)}/>
+              <KPI label="إجمالي الدائن" value={fmtN(crTot)}/>
+              <KPI label="الفرق" value={fmtN(Math.abs(drTot-crTot))} delta={drTot===crTot?"ميزان متوازن ✓":"تحقق من القيود"} up={drTot===crTot}/>
+            </div>
+            <Card noPad>
+              <div style={{display:"grid",gridTemplateColumns:"70px 1fr 120px 120px",padding:"7px 14px",background:"var(--color-background-secondary)",gap:8}}>
+                {["الكود","الحساب","مدين","دائن"].map((h,i)=><span key={i} style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",textAlign:i>1?"right":"left"}}>{h}</span>)}
+              </div>
+              {data.coa.map(a=>{
+                const isDR=a.type==="Asset"||a.type==="Expense";
+                return(
+                  <div key={a.id} style={{display:"grid",gridTemplateColumns:"70px 1fr 120px 120px",padding:"6px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",gap:8,fontSize:12,alignItems:"center"}}>
+                    <span style={{fontFamily:"monospace",color:"var(--color-text-info)",fontSize:11}}>{a.code}</span>
+                    <span>{a.name_ar}</span>
+                    <span style={{textAlign:"right",fontFamily:"monospace"}}>{isDR?fmtN(Math.abs(a.balance)):""}</span>
+                    <span style={{textAlign:"right",fontFamily:"monospace"}}>{!isDR?fmtN(Math.abs(a.balance)):""}</span>
+                  </div>
+                );
+              })}
+              <div style={{display:"grid",gridTemplateColumns:"70px 1fr 120px 120px",padding:"8px 14px",background:"var(--color-background-secondary)",gap:8,fontWeight:500,borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                <span/><span style={{fontSize:12}}>الإجمالي</span>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:13}}>{fmtN(drTot)}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:13}}>{fmtN(crTot)}</span>
+              </div>
+            </Card>
+          </div>
+        )}
+        {tab==="gl"&&(
+          <Card noPad>
+            <div style={{padding:"10px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",background:"var(--color-background-secondary)"}}>
+              <select style={{fontSize:12,minWidth:260}}>
+                <option>اختر الحساب لعرض حركاته...</option>
+                {data.coa.filter(a=>a.post).map(a=><option key={a.id}>{a.code} — {a.name_ar}</option>)}
+              </select>
+            </div>
+            <Tbl rows={data.journals} cols={[
+              {key:"date",label:"التاريخ"},
+              {key:"ref",label:"المرجع",mono:true},
+              {key:"desc",label:"البيان",wrap:true},
+              {key:"debit",label:"مدين",r:true,mono:true,fn:r=>fmtN(r.debit)},
+              {key:"credit",label:"دائن",r:true,mono:true,fn:r=>fmtN(r.credit)},
+              {key:"bal",label:"الرصيد",r:true,mono:true,fn:r=>fmtN(r.debit-r.credit)},
+            ]}/>
+          </Card>
+        )}
+      </div>
+      {modal&&(
+        <Modal title="قيد محاسبي جديد" onClose={()=>setModal(false)}>
+          <G2>
+            <Fld label="التاريخ *"><input type="date" value={f.date} onChange={e=>setF(x=>({...x,date:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="مركز التكلفة"><select value={f.cc} onChange={e=>setF(x=>({...x,cc:e.target.value}))} style={{width:"100%"}}>
+              <option value="">غير محدد</option>
+              {["CC-CONS — الاستشارات","CC-IT — تقنية المعلومات","CC-HR — الموارد البشرية","CC-ADM — الإدارة"].map(o=><option key={o}>{o}</option>)}
+            </select></Fld>
+          </G2>
+          <Fld label="البيان *"><input value={f.desc} onChange={e=>setF(x=>({...x,desc:e.target.value}))} placeholder="وصف القيد..." style={{width:"100%"}}/></Fld>
+          <G2>
+            <Fld label="حساب مدين DR *"><select value={f.dr} onChange={e=>setF(x=>({...x,dr:e.target.value}))} style={{width:"100%"}}>
+              <option value="">اختر...</option>{data.coa.filter(a=>a.post).map(a=><option key={a.id} value={a.id}>{a.code} — {a.name_ar}</option>)}
+            </select></Fld>
+            <Fld label="حساب دائن CR *"><select value={f.cr} onChange={e=>setF(x=>({...x,cr:e.target.value}))} style={{width:"100%"}}>
+              <option value="">اختر...</option>{data.coa.filter(a=>a.post).map(a=><option key={a.id} value={a.id}>{a.code} — {a.name_ar}</option>)}
+            </select></Fld>
+          </G2>
+          <Fld label="المبلغ (SAR) *"><input type="number" value={f.amount} onChange={e=>setF(x=>({...x,amount:e.target.value}))} placeholder="0.00" min="0" step="0.01" style={{width:"100%"}}/></Fld>
+          {f.dr&&f.cr&&parseFloat(f.amount)>0&&(
+            <div style={{background:"var(--color-background-info)",borderRadius:"var(--border-radius-md)",padding:10,marginBottom:10,fontSize:12}}>
+              <div style={{fontWeight:500,color:"var(--color-text-info)",marginBottom:6,fontSize:11}}>معاينة القيد التلقائي</div>
+              <div style={{display:"grid",gridTemplateColumns:"16px 1fr 100px",gap:6}}>
+                <span style={{fontFamily:"monospace",color:"var(--color-text-info)"}}>د</span>
+                <span>{data.coa.find(a=>a.id===f.dr)?.name_ar}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace"}}>{fmtN(f.amount)}</span>
+                <span style={{fontFamily:"monospace",color:"var(--color-text-info)",paddingLeft:8}}>ك</span>
+                <span style={{paddingLeft:14}}>{data.coa.find(a=>a.id===f.cr)?.name_ar}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace"}}>{fmtN(f.amount)}</span>
+              </div>
+            </div>
+          )}
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setModal(false)}>إلغاء</button>
+            <button onClick={save} style={{background:"var(--color-background-info)",color:"var(--color-text-info)",borderColor:"var(--color-border-info)"}}>حفظ كمسودة</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ─── part3.jsx ───
+// ═══════════════════════ SALES ═══════════════════════
+const Sales = ({data,setData}) => {
+  const [tab,setTab]=useState("invoices");
+  const [modal,setModal]=useState(false);
+  const [sel,setSel]=useState(null);
+  const [lines,setLines]=useState([{desc:"",qty:1,price:0,vat:0.15}]);
+  const [f,setF]=useState({cust_id:"",date:today(),due:"",currency:"SAR",proj_id:""});
+
+  const sub=lines.reduce((s,l)=>s+l.qty*l.price,0);
+  const vatAmt=lines.reduce((s,l)=>s+l.qty*l.price*l.vat,0);
+
+  const confirm=id=>{
+    const inv=data.invoices.find(i=>i.id===id);
+    const je={id:`je_${Date.now()}`,ref:`JE-AUTO-${inv.number}`,date:inv.date,desc:`ترحيل تلقائي — ${inv.number}`,status:"posted",source:"Sales",debit:inv.total,credit:inv.total,
+      lines:[{acc:"1200",dr:inv.total,cr:0,desc:`ذمم مدينة — ${data.customers.find(c=>c.id===inv.cust_id)?.name_ar}`},{acc:"4100",dr:0,cr:inv.sub,desc:"إيراد خدمات"},{acc:"2310",dr:0,cr:inv.vat,desc:"VAT مخرجات 15%"}]};
+    setData(d=>({...d,invoices:d.invoices.map(i=>i.id===id?{...i,status:"posted",zatca:"pending"}:i),journals:[je,...d.journals]}));
+  };
+  const retryZ=id=>setData(d=>({...d,invoices:d.invoices.map(i=>i.id===id?{...i,zatca:"cleared"}:i)}));
+
+  const create=()=>{
+    if(!f.cust_id) return;
+    const num=`INV-2025-${String(840+data.invoices.length+1).padStart(4,"0")}`;
+    const inv={id:`inv_${Date.now()}`,number:num,cust_id:f.cust_id,date:f.date,due:f.due||f.date,sub,vat:vatAmt,total:sub+vatAmt,status:"draft",zatca:null,currency:f.currency,proj_id:f.proj_id,lines};
+    setData(d=>({...d,invoices:[inv,...d.invoices]}));
+    setModal(false);setLines([{desc:"",qty:1,price:0,vat:0.15}]);setF({cust_id:"",date:today(),due:"",currency:"SAR",proj_id:""});
+  };
+
+  const totalPosted=data.invoices.filter(i=>i.status==="posted").reduce((s,i)=>s+i.sub,0);
+  const totalVAT=data.invoices.filter(i=>i.status==="posted").reduce((s,i)=>s+i.vat,0);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+          <KPI label="إجمالي المبيعات Q1" value={`${fmtN(totalPosted/1000000)}M SAR`} up icon="ti-trending-up" color="#1D9E75"/>
+          <KPI label="إجمالي VAT محصَّل" value={`${fmtN(totalVAT/1000000)}M SAR`} icon="ti-receipt-tax" color="#BA7517"/>
+          <KPI label="ZATCA معلقة" value={`${data.invoices.filter(i=>i.zatca==="pending").length}`} delta="إرسال فوري مطلوب" icon="ti-shield-check" color="#D85A30"/>
+          <KPI label="فواتير مسودة" value={`${data.invoices.filter(i=>i.status==="draft").length}`} delta="لم تُرحَّل بعد" icon="ti-file-description" color="#534AB7"/>
+        </div>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["invoices","الفواتير"],["customers","العملاء"],["aging","الاستحقاقات"]]}
+          active={tab} onChange={setTab}
+          actions={<button style={{fontSize:12}} onClick={()=>setModal(true)}>+ فاتورة جديدة</button>}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+        {tab==="invoices"&&(
+          <Card noPad>
+            <Tbl rows={data.invoices} cols={[
+              {key:"number",label:"رقم الفاتورة",mono:true},
+              {key:"cust_id",label:"العميل",fn:r=>data.customers.find(c=>c.id===r.cust_id)?.name_ar||"-"},
+              {key:"date",label:"التاريخ"},{key:"due",label:"الاستحقاق"},
+              {key:"sub",label:"قبل VAT",r:true,mono:true,fn:r=>fmtN(r.sub)},
+              {key:"vat",label:"VAT 15%",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(r.vat)}</span>},
+              {key:"total",label:"الإجمالي",r:true,mono:true,fn:r=><strong>{fmtN(r.total)}</strong>},
+              {key:"currency",label:"عملة",fn:r=><Bdg c="gray" sm>{r.currency}</Bdg>},
+              {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="posted"?"green":"amber"} sm>{r.status==="posted"?"مُرحَّل":"مسودة"}</Bdg>},
+              {key:"zatca",label:"ZATCA",fn:r=>r.zatca==="cleared"?<Bdg c="green" sm>معتمد ✓</Bdg>:r.zatca==="pending"?<Bdg c="amber" sm>معلق</Bdg>:<Bdg c="gray" sm>—</Bdg>},
+              {key:"act",label:"",fn:r=>(
+                <div style={{display:"flex",gap:4}}>
+                  <button onClick={()=>setSel(r)} style={{fontSize:10,padding:"2px 6px"}}>عرض</button>
+                  {r.status==="draft"&&<button onClick={()=>confirm(r.id)} style={{fontSize:10,padding:"2px 6px",background:"var(--color-background-success)",color:"var(--color-text-success)",borderColor:"var(--color-border-success)"}}>تأكيد ↗</button>}
+                  {r.zatca==="pending"&&<button onClick={()=>retryZ(r.id)} style={{fontSize:10,padding:"2px 6px",background:"var(--color-background-info)",color:"var(--color-text-info)",borderColor:"var(--color-border-info)"}}>ZATCA ↗</button>}
+                </div>
+              )},
+            ]}/>
+          </Card>
+        )}
+        {tab==="customers"&&(
+          <Card noPad>
+            <Tbl rows={data.customers} cols={[
+              {key:"name_ar",label:"العميل"},
+              {key:"vat",label:"الرقم الضريبي",mono:true,sm:true},
+              {key:"credit_limit",label:"حد الائتمان",r:true,mono:true,fn:r=>fmtN(r.credit_limit)},
+              {key:"balance",label:"الرصيد المستحق",r:true,mono:true,fn:r=><strong style={{color:r.balance>r.credit_limit*0.8?"var(--color-text-danger)":"inherit"}}>{fmtN(r.balance)}</strong>},
+              {key:"util",label:"استخدام الائتمان",fn:r=>{const p=Math.round(r.balance/r.credit_limit*100);return<div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:60,height:5,background:"var(--color-background-tertiary)",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${Math.min(100,p)}%`,background:p>80?"#E24B4A":p>60?"#BA7517":"#1D9E75",borderRadius:3}}/></div><span style={{fontSize:10}}>{p}%</span></div>;}},
+              {key:"contact",label:"المسؤول"},
+              {key:"email",label:"البريد",sm:true},
+            ]}/>
+          </Card>
+        )}
+        {tab==="aging"&&(
+          <div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
+              {[["0-30 يوم",0.3],["31-60 يوم",0.25],["61-90 يوم",0.2],["+90 يوم",0.25]].map(([l,r])=>(
+                <KPI key={l} label={l} value={`SAR ${fmtN(data.customers.reduce((s,x)=>s+x.balance*r,0))}`}/>
+              ))}
+            </div>
+            <Card noPad>
+              <Tbl rows={data.customers} cols={[
+                {key:"name_ar",label:"العميل"},
+                {key:"b1",label:"0-30",r:true,mono:true,fn:r=>fmtN(r.balance*0.3)},
+                {key:"b2",label:"31-60",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(r.balance*0.25)}</span>},
+                {key:"b3",label:"61-90",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-danger)"}}>{fmtN(r.balance*0.2)}</span>},
+                {key:"b4",label:"+90",r:true,mono:true,fn:r=><strong style={{color:"var(--color-text-danger)"}}>{fmtN(r.balance*0.25)}</strong>},
+                {key:"balance",label:"الإجمالي",r:true,mono:true,fn:r=><strong>{fmtN(r.balance)}</strong>},
+              ]}/>
+            </Card>
+          </div>
+        )}
+      </div>
+      {sel&&(
+        <Modal title={`تفاصيل الفاتورة — ${sel.number}`} onClose={()=>setSel(null)} wide>
+          <G2>
+            <div><div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:2}}>العميل</div><div style={{fontWeight:500}}>{data.customers.find(c=>c.id===sel.cust_id)?.name_ar}</div></div>
+            <div><div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:2}}>التاريخ / الاستحقاق</div><div>{sel.date} / {sel.due}</div></div>
+            <div><div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:2}}>العملة</div><Bdg c="gray">{sel.currency}</Bdg></div>
+            <div><div style={{fontSize:11,color:"var(--color-text-secondary)",marginBottom:2}}>ZATCA</div>{sel.zatca==="cleared"?<Bdg c="green">معتمد ✓</Bdg>:sel.zatca==="pending"?<Bdg c="amber">في الانتظار</Bdg>:<Bdg c="gray">لم يُرسل</Bdg>}</div>
+          </G2>
+          <div style={{margin:"12px 0 6px",fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",textTransform:"uppercase"}}>أسطر الفاتورة</div>
+          {(sel.lines||[]).map((l,i)=>(
+            <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 60px 100px 60px 100px",gap:8,padding:"6px 0",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+              <span>{l.desc}</span>
+              <span style={{textAlign:"right",fontFamily:"monospace"}}>{l.qty}</span>
+              <span style={{textAlign:"right",fontFamily:"monospace"}}>{fmtN(l.price)}</span>
+              <span style={{textAlign:"center"}}><Bdg c="amber" sm>{(l.vat_rate||l.vat)*100}%</Bdg></span>
+              <span style={{textAlign:"right",fontFamily:"monospace",fontWeight:500}}>{fmtN(l.qty*l.price)}</span>
+            </div>
+          ))}
+          <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:10,marginTop:10}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}><span style={{color:"var(--color-text-secondary)"}}>المجموع قبل VAT</span><span style={{fontFamily:"monospace"}}>{fmtN(sel.sub)} {sel.currency}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}><span style={{color:"var(--color-text-secondary)"}}>VAT 15%</span><span style={{fontFamily:"monospace",color:"var(--color-text-warning)"}}>{fmtN(sel.vat)} {sel.currency}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontWeight:500,fontSize:14,borderTop:"0.5px solid var(--color-border-secondary)",paddingTop:6,marginTop:4}}><span>الإجمالي</span><span style={{fontFamily:"monospace"}}>{fmtN(sel.total)} {sel.currency}</span></div>
+          </div>
+        </Modal>
+      )}
+      {modal&&(
+        <Modal title="إنشاء فاتورة ضريبية — ZATCA Phase 2" onClose={()=>setModal(false)} wide>
+          <G2>
+            <Fld label="العميل *"><select value={f.cust_id} onChange={e=>setF(x=>({...x,cust_id:e.target.value}))} style={{width:"100%"}}>
+              <option value="">اختر...</option>{data.customers.map(c=><option key={c.id} value={c.id}>{c.name_ar}</option>)}
+            </select></Fld>
+            <Fld label="المشروع"><select value={f.proj_id} onChange={e=>setF(x=>({...x,proj_id:e.target.value}))} style={{width:"100%"}}>
+              <option value="">غير مرتبط</option>{data.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select></Fld>
+            <Fld label="تاريخ الفاتورة *"><input type="date" value={f.date} onChange={e=>setF(x=>({...x,date:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="تاريخ الاستحقاق"><input type="date" value={f.due} onChange={e=>setF(x=>({...x,due:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="العملة"><select value={f.currency} onChange={e=>setF(x=>({...x,currency:e.target.value}))} style={{width:"100%"}}>
+              {["SAR","USD","EUR","AED","GBP"].map(c=><option key={c}>{c}</option>)}
+            </select></Fld>
+          </G2>
+          <div style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",margin:"12px 0 6px",textTransform:"uppercase"}}>أسطر الفاتورة</div>
+          {lines.map((ln,i)=>(
+            <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 60px 100px 70px 24px",gap:6,marginBottom:6,alignItems:"center"}}>
+              <input value={ln.desc} onChange={e=>setLines(l=>l.map((x,j)=>j===i?{...x,desc:e.target.value}:x))} placeholder="وصف الخدمة..." style={{fontSize:12}}/>
+              <input type="number" value={ln.qty} min="0" step="0.01" onChange={e=>setLines(l=>l.map((x,j)=>j===i?{...x,qty:parseFloat(e.target.value)||0}:x))} style={{fontSize:12,textAlign:"right"}}/>
+              <input type="number" value={ln.price} min="0" onChange={e=>setLines(l=>l.map((x,j)=>j===i?{...x,price:parseFloat(e.target.value)||0}:x))} style={{fontSize:12,textAlign:"right"}}/>
+              <select value={ln.vat} onChange={e=>setLines(l=>l.map((x,j)=>j===i?{...x,vat:parseFloat(e.target.value)}:x))} style={{fontSize:11}}>
+                <option value="0.15">15%</option><option value="0.05">5%</option><option value="0">معفى</option>
+              </select>
+              <button onClick={()=>lines.length>1&&setLines(l=>l.filter((_,j)=>j!==i))} style={{border:"none",background:"none",color:"var(--color-text-danger)",cursor:"pointer",fontSize:16,padding:0}} aria-label="حذف">✕</button>
+            </div>
+          ))}
+          <button onClick={()=>setLines(l=>[...l,{desc:"",qty:1,price:0,vat:0.15}])} style={{fontSize:11,marginBottom:10}}>+ إضافة سطر</button>
+          <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:"10px 12px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}><span style={{color:"var(--color-text-secondary)"}}>المجموع قبل VAT</span><span style={{fontFamily:"monospace"}}>{fmtN(sub)} {f.currency}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}><span style={{color:"var(--color-text-secondary)"}}>ضريبة القيمة المضافة</span><span style={{fontFamily:"monospace",color:"var(--color-text-warning)"}}>{fmtN(vatAmt)} {f.currency}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontWeight:500,fontSize:14,borderTop:"0.5px solid var(--color-border-secondary)",paddingTop:6,marginTop:4}}><span>الإجمالي المستحق</span><span style={{fontFamily:"monospace"}}>{fmtN(sub+vatAmt)} {f.currency}</span></div>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:12}}>
+            <div style={{fontSize:11,color:"var(--color-text-tertiary)",display:"flex",alignItems:"center",gap:4}}><i className="ti ti-shield-check" style={{color:"#1D9E75"}} aria-hidden="true"/>سيتم الإرسال إلى ZATCA عند التأكيد</div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>setModal(false)}>إلغاء</button>
+              <button onClick={create} style={{background:"var(--color-background-info)",color:"var(--color-text-info)",borderColor:"var(--color-border-info)"}}>إنشاء الفاتورة ↗</button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ═══════════════════════ PURCHASE ═══════════════════════
+const Purchase = ({data,setData}) => {
+  const [tab,setTab]=useState("po");
+  const [modal,setModal]=useState(false);
+  const [f,setF]=useState({vendor_id:"",desc:"",amount:"",date:today()});
+  const vendor=data.vendors.find(v=>v.id===f.vendor_id);
+  const amt=parseFloat(f.amount)||0;
+
+  const create=()=>{
+    if(!f.vendor_id||!f.amount) return;
+    const vat=amt*0.15, wht=amt*(vendor?.wht_rate||0);
+    const po={id:`po_${Date.now()}`,ref:`PO-2025-${String(55+data.purchase_orders.length+1).padStart(4,"0")}`,vendor_id:f.vendor_id,date:f.date,desc:f.desc,amount:amt,vat,wht,net:amt+vat-wht,status:"pending_approval"};
+    const ap={id:`ap_${Date.now()}`,type:"purchase_order",ref:po.ref,amount:amt,requester:"المستخدم الحالي",status:"pending",level:amt>=100000?"المدير المالي CFO":"مدير المالية",date:today(),detail:f.desc};
+    setData(d=>({...d,purchase_orders:[po,...d.purchase_orders],approvals:[ap,...d.approvals]}));
+    setModal(false);setF({vendor_id:"",desc:"",amount:"",date:today()});
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+          <KPI label="إجمالي الذمم الدائنة" value={`SAR ${fmtN(data.vendors.reduce((s,v)=>s+v.balance,0))}`} icon="ti-receipt"/>
+          <KPI label="أوامر شراء معلقة" value={`${data.purchase_orders.filter(p=>p.status==="pending_approval").length}`} delta="تنتظر الموافقة" icon="ti-clock"/>
+          <KPI label="WHT مستحق" value={`SAR ${fmtN(data.coa.find(a=>a.code==="2320")?.balance||0)}`} icon="ti-percentage"/>
+          <KPI label="فواتير موردين معلقة" value={`${data.vendor_bills.filter(v=>v.status==="pending").length}`} delta="لم تُسدَّد" icon="ti-file-dollar"/>
+        </div>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["po","أوامر الشراء"],["bills","فواتير الموردين"],["vendors","الموردون"],["wht","WHT"]]}
+          active={tab} onChange={setTab}
+          actions={<button style={{fontSize:12}} onClick={()=>setModal(true)}>+ أمر شراء جديد</button>}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+        {tab==="po"&&<Card noPad><Tbl rows={data.purchase_orders} cols={[
+          {key:"ref",label:"المرجع",mono:true},
+          {key:"vendor_id",label:"المورد",fn:r=>data.vendors.find(v=>v.id===r.vendor_id)?.name_ar||"-"},
+          {key:"date",label:"التاريخ"},{key:"desc",label:"الوصف",wrap:true},
+          {key:"amount",label:"المبلغ",r:true,mono:true,fn:r=>fmtN(r.amount)},
+          {key:"vat",label:"VAT",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(r.vat)}</span>},
+          {key:"wht",label:"WHT",r:true,mono:true,fn:r=>r.wht>0?<span style={{color:"var(--color-text-danger)"}}>-{fmtN(r.wht)}</span>:"—"},
+          {key:"net",label:"صافي مدفوع",r:true,mono:true,fn:r=><strong>{fmtN(r.net)}</strong>},
+          {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="approved"?"green":"amber"} sm>{r.status==="approved"?"معتمد":"ينتظر"}</Bdg>},
+        ]}/></Card>}
+        {tab==="bills"&&<Card noPad><Tbl rows={data.vendor_bills} cols={[
+          {key:"number",label:"رقم الفاتورة",mono:true},
+          {key:"vendor_id",label:"المورد",fn:r=>data.vendors.find(v=>v.id===r.vendor_id)?.name_ar||"-"},
+          {key:"date",label:"التاريخ"},{key:"due",label:"الاستحقاق"},
+          {key:"amount",label:"المبلغ",r:true,mono:true,fn:r=>fmtN(r.amount)},
+          {key:"vat",label:"VAT",r:true,mono:true,fn:r=>fmtN(r.vat)},
+          {key:"wht",label:"WHT",r:true,mono:true,fn:r=>r.wht>0?<span style={{color:"var(--color-text-danger)"}}>-{fmtN(r.wht)}</span>:"—"},
+          {key:"net",label:"صافي مدفوع",r:true,mono:true,fn:r=><strong>{fmtN(r.net)}</strong>},
+          {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="posted"?"green":"amber"} sm>{r.status==="posted"?"مسدد":"معلق"}</Bdg>},
+          {key:"wht_cert",label:"شهادة WHT",fn:r=>r.wht_cert?<Bdg c="teal" sm>{r.wht_cert}</Bdg>:"—"},
+        ]}/></Card>}
+        {tab==="vendors"&&<Card noPad><Tbl rows={data.vendors} cols={[
+          {key:"name_ar",label:"المورد"},
+          {key:"vat",label:"الرقم الضريبي",mono:true,sm:true},
+          {key:"category",label:"التصنيف",fn:r=><Bdg c="gray" sm>{r.category}</Bdg>},
+          {key:"wht_rate",label:"نسبة WHT",fn:r=><Bdg c={r.wht_rate>0?"amber":"gray"} sm>{r.wht_rate>0?`${r.wht_rate*100}%`:"معفى"}</Bdg>},
+          {key:"balance",label:"الرصيد",r:true,mono:true,fn:r=><strong style={{color:r.balance>100000?"var(--color-text-warning)":"inherit"}}>{fmtN(r.balance)}</strong>},
+        ]}/></Card>}
+        {tab==="wht"&&(
+          <div>
+            <div style={{background:"var(--color-background-warning)",borderRadius:"var(--border-radius-md)",padding:"10px 14px",marginBottom:12,fontSize:12}}>
+              <strong>WHT:</strong> خدمات الإدارة 5% · الخدمات التقنية 5% · الإيجار 5% — المادة 68 من نظام ضريبة الدخل
+            </div>
+            <Card noPad><Tbl rows={data.vendor_bills.filter(b=>b.wht>0&&b.wht_cert)} cols={[
+              {key:"wht_cert",label:"رقم الشهادة",mono:true},
+              {key:"vendor_id",label:"المورد",fn:r=>data.vendors.find(v=>v.id===r.vendor_id)?.name_ar||"-"},
+              {key:"date",label:"التاريخ"},
+              {key:"amount",label:"أساس الاستقطاع",r:true,mono:true,fn:r=>fmtN(r.amount)},
+              {key:"wht",label:"WHT مستقطع",r:true,mono:true,fn:r=><strong style={{color:"var(--color-text-danger)"}}>{fmtN(r.wht)}</strong>},
+              {key:"ok",label:"الحالة",fn:()=><Bdg c="green" sm>صادرة ✓</Bdg>},
+            ]}/></Card>
+          </div>
+        )}
+      </div>
+      {modal&&(
+        <Modal title="إنشاء أمر شراء جديد" onClose={()=>setModal(false)}>
+          <Fld label="المورد *"><select value={f.vendor_id} onChange={e=>setF(x=>({...x,vendor_id:e.target.value}))} style={{width:"100%"}}>
+            <option value="">اختر المورد...</option>
+            {data.vendors.map(v=><option key={v.id} value={v.id}>{v.name_ar}{v.wht_rate>0?` (WHT ${v.wht_rate*100}%)`:""}</option>)}
+          </select></Fld>
+          <Fld label="الوصف *"><input value={f.desc} onChange={e=>setF(x=>({...x,desc:e.target.value}))} placeholder="وصف تفصيلي للمشتريات..." style={{width:"100%"}}/></Fld>
+          <G2>
+            <Fld label="المبلغ قبل VAT (SAR) *"><input type="number" value={f.amount} onChange={e=>setF(x=>({...x,amount:e.target.value}))} min="0" style={{width:"100%"}}/></Fld>
+            <Fld label="التاريخ"><input type="date" value={f.date} onChange={e=>setF(x=>({...x,date:e.target.value}))} style={{width:"100%"}}/></Fld>
+          </G2>
+          {amt>0&&(
+            <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:10,fontSize:12,marginBottom:10}}>
+              <div style={{fontWeight:500,fontSize:11,color:"var(--color-text-secondary)",marginBottom:6,textTransform:"uppercase"}}>احتساب تلقائي — قواعد GAZT</div>
+              {[
+                ["المبلغ الأساسي",`${fmtN(amt)} SAR`,""],
+                ["VAT 15% (مدخلات)",`+${fmtN(amt*0.15)} SAR`,"var(--color-text-warning)"],
+                vendor?.wht_rate>0&&[`WHT ${vendor.wht_rate*100}%`,`-${fmtN(amt*vendor.wht_rate)} SAR`,"var(--color-text-danger)"],
+                ["صافي المدفوع",`${fmtN(amt+amt*0.15-amt*(vendor?.wht_rate||0))} SAR`,""],
+              ].filter(Boolean).map(([l,v,c])=>(
+                <div key={l} style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                  <span style={{color:"var(--color-text-secondary)"}}>{l}</span>
+                  <span style={{fontFamily:"monospace",color:c||"inherit",fontWeight:!c?"500":"400"}}>{v}</span>
+                </div>
+              ))}
+              {amt>=100000&&<div style={{marginTop:6,fontSize:11,color:"var(--color-text-warning)"}}>⚠ المبلغ فوق SAR 100,000 — يتطلب موافقة CFO</div>}
+            </div>
+          )}
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setModal(false)}>إلغاء</button>
+            <button onClick={create} style={{background:"var(--color-background-info)",color:"var(--color-text-info)",borderColor:"var(--color-border-info)"}}>إنشاء وإرسال للموافقة ↗</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ═══════════════════════ PROJECTS ═══════════════════════
+const Projects = ({data,setData}) => {
+  const [modal,setModal]=useState(false);
+  const [f,setF]=useState({emp_id:"",proj_id:"",date:today(),hours:8,rate:500});
+
+  const addTS=()=>{
+    if(!f.emp_id||!f.proj_id) return;
+    const ts={id:`ts_${Date.now()}`,...f,hours:parseFloat(f.hours),rate:parseFloat(f.rate),amount:parseFloat(f.hours)*parseFloat(f.rate),status:"pending"};
+    setData(d=>({...d,timesheets:[ts,...d.timesheets]}));
+    setModal(false);setF({emp_id:"",proj_id:"",date:today(),hours:8,rate:500});
+  };
+
+  return(
+    <PRow>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        <KPI label="مشاريع نشطة" value={data.projects.filter(p=>p.status!=="overbudget").length} icon="ti-briefcase" color="#1D9E75"/>
+        <KPI label="إجمالي الميزانيات" value={`${fmtN(data.projects.reduce((s,p)=>s+p.budget,0)/1000000)}M SAR`} icon="ti-coin"/>
+        <KPI label="التكلفة الفعلية" value={`${fmtN(data.projects.reduce((s,p)=>s+p.actual,0)/1000000)}M SAR`} icon="ti-cash"/>
+        <KPI label="تجاوزت الميزانية" value={data.projects.filter(p=>p.status==="overbudget").length} delta="مراجعة فورية" icon="ti-alert-triangle" color="#E24B4A"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        {data.projects.map(p=>{
+          const cust=data.customers.find(c=>c.id===p.cust_id);
+          const pm=data.employees.find(e=>e.id===p.pm);
+          const costPct=Math.min(150,Math.round((p.actual/p.budget)*100));
+          const isOver=p.status==="overbudget",isRisk=p.status==="at_risk";
+          const barCol=isOver?"#E24B4A":isRisk?"#BA7517":"#1D9E75";
+          const margin=Math.round((p.budget-p.actual)/p.budget*100);
+          return(
+            <div key={p.id} style={{background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:"var(--border-radius-lg)",padding:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                <div>
+                  <div style={{fontWeight:500,fontSize:13}}>{p.name}</div>
+                  <div style={{fontSize:11,color:"var(--color-text-secondary)",marginTop:2}}>{cust?.name_ar} · {p.type==="Fixed"?"سعر ثابت":p.type==="T&M"?"وقت ومواد":"اشتراك"} · {pm?.name_ar}</div>
+                </div>
+                <div style={{display:"flex",gap:5,flexDirection:"column",alignItems:"flex-end"}}>
+                  <Bdg c={isOver?"red":isRisk?"amber":"green"}>{isOver?"تجاوز الميزانية":isRisk?"تحت المراقبة":"على المسار"}</Bdg>
+                  <Bdg c="blue" sm>{p.pct}% مكتمل</Bdg>
+                </div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,marginBottom:10}}>
+                {[["الميزانية",fmtN(p.budget)],["الفعلي",fmtN(p.actual)],["المُفوتَر",fmtN(p.invoiced)],["الهامش",`${margin>0?"+":""}${margin}%`]].map(([l,v])=>(
+                  <div key={l}><div style={{fontSize:10,color:"var(--color-text-tertiary)",marginBottom:2}}>{l}</div>
+                  <div style={{fontFamily:"monospace",fontSize:12,fontWeight:500,color:l==="الهامش"&&margin<0?"var(--color-text-danger)":l==="الهامش"?"var(--color-text-success)":"var(--color-text-primary)"}}>{v}</div></div>
+                ))}
+              </div>
+              <div style={{marginBottom:6}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"var(--color-text-tertiary)",marginBottom:2}}><span>استهلاك الميزانية</span><span>{costPct}%</span></div>
+                <div style={{height:5,background:"var(--color-background-tertiary)",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${Math.min(100,costPct)}%`,background:barCol,borderRadius:3}}/></div>
+              </div>
+              <div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"var(--color-text-tertiary)",marginBottom:2}}><span>نسبة الإنجاز</span><span>{p.pct}%</span></div>
+                <div style={{height:5,background:"var(--color-background-tertiary)",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${p.pct}%`,background:"#378ADD",borderRadius:3}}/></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <Card title="Timesheets — بطاقات الوقت" action={<button style={{fontSize:11}} onClick={()=>setModal(true)}>+ إضافة</button>} noPad>
+        <Tbl rows={data.timesheets} cols={[
+          {key:"emp_id",label:"الموظف",fn:r=>{const e=data.employees.find(x=>x.id===r.emp_id);return e?.name_ar||"-";}},
+          {key:"proj_id",label:"المشروع",fn:r=>data.projects.find(p=>p.id===r.proj_id)?.name||"-"},
+          {key:"date",label:"التاريخ"},
+          {key:"hours",label:"الساعات",r:true},
+          {key:"rate",label:"معدل/ساعة",r:true,mono:true,fn:r=>fmtN(r.rate)},
+          {key:"amount",label:"الإجمالي",r:true,mono:true,fn:r=><strong>{fmtN(r.amount)}</strong>},
+          {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="approved"?"green":"amber"} sm>{r.status==="approved"?"معتمد":"ينتظر"}</Bdg>},
+        ]}/>
+      </Card>
+      {modal&&(
+        <Modal title="إضافة بطاقة وقت" onClose={()=>setModal(false)}>
+          <G2>
+            <Fld label="الموظف *"><select value={f.emp_id} onChange={e=>setF(x=>({...x,emp_id:e.target.value}))} style={{width:"100%"}}>
+              <option value="">اختر...</option>{data.employees.map(e=><option key={e.id} value={e.id}>{e.name_ar}</option>)}
+            </select></Fld>
+            <Fld label="المشروع *"><select value={f.proj_id} onChange={e=>setF(x=>({...x,proj_id:e.target.value}))} style={{width:"100%"}}>
+              <option value="">اختر...</option>{data.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select></Fld>
+            <Fld label="التاريخ"><input type="date" value={f.date} onChange={e=>setF(x=>({...x,date:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="عدد الساعات"><input type="number" value={f.hours} min="0" max="24" step="0.5" onChange={e=>setF(x=>({...x,hours:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="المعدل / ساعة (SAR)"><input type="number" value={f.rate} min="0" onChange={e=>setF(x=>({...x,rate:e.target.value}))} style={{width:"100%"}}/></Fld>
+            <Fld label="الإجمالي"><input readOnly value={fmtN(parseFloat(f.hours||0)*parseFloat(f.rate||0))} style={{width:"100%",background:"var(--color-background-secondary)"}}/></Fld>
+          </G2>
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:8}}>
+            <button onClick={()=>setModal(false)}>إلغاء</button>
+            <button onClick={addTS} style={{background:"var(--color-background-info)",color:"var(--color-text-info)",borderColor:"var(--color-border-info)"}}>حفظ ↗</button>
+          </div>
+        </Modal>
+      )}
+    </PRow>
+  );
+};
+
+// ═══════════════════════ HR ═══════════════════════
+const HR = ({data,setData}) => {
+  const [tab,setTab]=useState("employees");
+  const [selEmp,setSelEmp]=useState(null);
+  const [modal,setModal]=useState(false);
+
+  const saudis=data.employees.filter(e=>e.nationality==="Saudi").length;
+  const saudPct=Math.round(saudis/data.employees.length*100);
+  const totalGross=data.employees.reduce((s,e)=>s+gGross(e),0);
+  const totalGOSI=data.employees.reduce((s,e)=>s+gGOSI_emp(e)+gGOSI_co(e),0);
+
+  const runPayroll=()=>{
+    const gross=data.employees.reduce((s,e)=>s+gGross(e),0);
+    const ge=data.employees.reduce((s,e)=>s+gGOSI_emp(e),0);
+    const gc=data.employees.reduce((s,e)=>s+gGOSI_co(e),0);
+    const net=gross-ge;
+    const run={id:`pay_${Date.now()}`,period:"أبريل 2025",month:4,year:2025,status:"draft",gross,gosi_emp:ge,gosi_co:gc,net,headcount:data.employees.length};
+    const ap={id:`ap_${Date.now()}`,type:"payroll",ref:"PAYROLL-APR-2025",amount:net,requester:"سارة الرشيدي",status:"pending",level:"المدير المالي CFO",date:today(),detail:`مسير رواتب أبريل 2025 — ${data.employees.length} موظف`};
+    setData(d=>({...d,payroll_runs:[run,...d.payroll_runs],approvals:[ap,...d.approvals]}));
+    setModal(false);
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+          <KPI label="إجمالي الموظفين" value={data.employees.length} icon="ti-users"/>
+          <KPI label="السعوديون" value={`${saudis} (${saudPct}%)`} delta={saudPct>=25?"Nitaqat مطابق ✓":"تحت الحد"} up={saudPct>=25} icon="ti-id-badge" color="#1D9E75"/>
+          <KPI label="الرواتب / شهر" value={`SAR ${fmtN(totalGross)}`} icon="ti-cash"/>
+          <KPI label="GOSI / شهر" value={`SAR ${fmtN(totalGOSI)}`} icon="ti-heart-handshake"/>
+          <KPI label="مخصص نهاية الخدمة" value={`SAR ${fmtN(data.employees.reduce((s,e)=>s+gEOS(e),0))}`} icon="ti-scale"/>
+        </div>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["employees","الموظفون"],["payroll","مسيرات الرواتب"],["gosi","GOSI"]]}
+          active={tab} onChange={setTab}
+          actions={tab==="payroll"?<button style={{fontSize:12}} onClick={()=>setModal(true)}>+ تشغيل مسير جديد</button>:null}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+        {tab==="employees"&&(
+          <Card noPad>
+            <Tbl rows={data.employees} onRow={setSelEmp} cols={[
+              {key:"number",label:"رقم الموظف",mono:true,sm:true},
+              {key:"name_ar",label:"الاسم"},
+              {key:"nationality",label:"الجنسية",fn:r=><Bdg c={r.nationality==="Saudi"?"green":"blue"} sm>{r.nationality}</Bdg>},
+              {key:"dept",label:"القسم"},
+              {key:"grade",label:"الدرجة",fn:r=><Bdg c="gray" sm>{r.grade}</Bdg>},
+              {key:"basic",label:"الأساسي",r:true,mono:true,fn:r=>fmtN(r.basic)},
+              {key:"gross",label:"الإجمالي",r:true,mono:true,fn:r=><strong>{fmtN(gGross(r))}</strong>},
+              {key:"gosi",label:"GOSI موظف",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(gGOSI_emp(r))}</span>},
+              {key:"net",label:"الصافي",r:true,mono:true,fn:r=><strong style={{color:"var(--color-text-success)"}}>{fmtN(gNet(r))}</strong>},
+              {key:"eos",label:"نهاية الخدمة",r:true,mono:true,fn:r=>fmtN(gEOS(r))},
+            ]}/>
+          </Card>
+        )}
+        {tab==="payroll"&&(
+          <Card noPad>
+            <Tbl rows={data.payroll_runs} cols={[
+              {key:"period",label:"الفترة"},
+              {key:"headcount",label:"الموظفون",r:true},
+              {key:"gross",label:"الإجمالي",r:true,mono:true,fn:r=>fmtN(r.gross)},
+              {key:"gosi_emp",label:"GOSI موظفون",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(r.gosi_emp)}</span>},
+              {key:"gosi_co",label:"GOSI شركة",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(r.gosi_co)}</span>},
+              {key:"net",label:"الصافي المدفوع",r:true,mono:true,fn:r=><strong style={{color:"var(--color-text-success)"}}>{fmtN(r.net)}</strong>},
+              {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="posted"?"green":r.status==="approved"?"blue":"amber"} sm>{r.status==="posted"?"مُرحَّل":r.status==="approved"?"معتمد":"مسودة"}</Bdg>},
+            ]}/>
+          </Card>
+        )}
+        {tab==="gosi"&&(
+          <div>
+            <div style={{background:"var(--color-background-info)",borderRadius:"var(--border-radius-md)",padding:"10px 14px",marginBottom:12,fontSize:12}}>
+              <strong>GOSI:</strong> السعوديون: 9% موظف + 9% صاحب عمل · غير السعوديين: 2% موظف فقط · يُسدَّد بحلول اليوم 15 من الشهر التالي
+            </div>
+            <Card noPad><Tbl rows={data.employees} cols={[
+              {key:"name_ar",label:"الموظف"},
+              {key:"nationality",label:"الجنسية",fn:r=><Bdg c={r.nationality==="Saudi"?"green":"blue"} sm>{r.nationality}</Bdg>},
+              {key:"basic",label:"الأساسي",r:true,mono:true,fn:r=>fmtN(r.basic)},
+              {key:"rate_emp",label:"نسبة الموظف",fn:r=><Bdg c="amber" sm>{r.nationality==="Saudi"?"9%":"2%"}</Bdg>},
+              {key:"gosi_emp",label:"حصة الموظف",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(gGOSI_emp(r))}</span>},
+              {key:"rate_co",label:"نسبة الشركة",fn:r=><Bdg c="coral" sm>{r.nationality==="Saudi"?"9%":"0%"}</Bdg>},
+              {key:"gosi_co",label:"حصة الشركة",r:true,mono:true,fn:r=><span style={{color:"var(--color-text-warning)"}}>{fmtN(gGOSI_co(r))}</span>},
+              {key:"total",label:"الإجمالي",r:true,mono:true,fn:r=><strong>{fmtN(gGOSI_emp(r)+gGOSI_co(r))}</strong>},
+            ]}/></Card>
+          </div>
+        )}
+      </div>
+      {selEmp&&(
+        <Modal title={`تفاصيل الموظف — ${selEmp.name_ar}`} onClose={()=>setSelEmp(null)}>
+          <G2>
+            {[["رقم الموظف",selEmp.number],["الجنسية",selEmp.nationality],["القسم",selEmp.dept],["الدرجة",selEmp.grade],["رقم GOSI",selEmp.gosi],["تاريخ التعيين",selEmp.hire_date],selEmp.nationality==="Saudi"?["رقم الهوية",selEmp.id_no]:["رقم الإقامة",selEmp.iqama]].map(([l,v])=>(
+              <div key={l}><div style={{fontSize:10,color:"var(--color-text-tertiary)",marginBottom:2}}>{l}</div><div style={{fontWeight:500,fontSize:12}}>{v}</div></div>
+            ))}
+          </G2>
+          <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:10,marginTop:12}}>
+            <div style={{fontSize:11,fontWeight:500,color:"var(--color-text-secondary)",marginBottom:6,textTransform:"uppercase"}}>هيكل الراتب</div>
+            {[["الراتب الأساسي",selEmp.basic],["بدل السكن",selEmp.housing],["بدل المواصلات",selEmp.transport],["بدل الجوال",selEmp.mobile],["بدل العلاج",selEmp.medical]].map(([l,v])=>(
+              <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                <span style={{color:"var(--color-text-secondary)"}}>{l}</span><span style={{fontFamily:"monospace"}}>{fmtN(v)}</span>
+              </div>
+            ))}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"5px 0",fontWeight:500,fontSize:13}}><span>الإجمالي</span><span style={{fontFamily:"monospace"}}>{fmtN(gGross(selEmp))}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"4px 0",fontSize:12}}><span style={{color:"var(--color-text-danger)"}}>GOSI موظف</span><span style={{fontFamily:"monospace",color:"var(--color-text-danger)"}}>-{fmtN(gGOSI_emp(selEmp))}</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",padding:"6px 0",fontWeight:500,fontSize:13,borderTop:"0.5px solid var(--color-border-secondary)",marginTop:3,color:"var(--color-text-success)"}}><span>الصافي</span><span style={{fontFamily:"monospace"}}>{fmtN(gNet(selEmp))}</span></div>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",padding:"8px 10px",background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",marginTop:8,fontSize:12}}>
+            <span style={{color:"var(--color-text-secondary)"}}>نهاية الخدمة المتراكم</span>
+            <span style={{fontFamily:"monospace",fontWeight:500,color:"var(--color-text-warning)"}}>SAR {fmtN(gEOS(selEmp))}</span>
+          </div>
+        </Modal>
+      )}
+      {modal&&(
+        <Modal title="تشغيل مسير الرواتب — أبريل 2025" onClose={()=>setModal(false)}>
+          <div style={{background:"var(--color-background-secondary)",borderRadius:"var(--border-radius-md)",padding:10,marginBottom:12,fontSize:12}}>
+            <div style={{fontWeight:500,marginBottom:8,fontSize:11,color:"var(--color-text-secondary)",textTransform:"uppercase"}}>ملخص الحسابات</div>
+            {data.employees.slice(0,5).map(e=>(
+              <div key={e.id} style={{display:"grid",gridTemplateColumns:"1fr 80px 70px 80px",gap:6,padding:"4px 0",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+                <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.name_ar}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:11}}>{fmtN(gGross(e))}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:11,color:"var(--color-text-warning)"}}>-{fmtN(gGOSI_emp(e))}</span>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:11,fontWeight:500}}>{fmtN(gNet(e))}</span>
+              </div>
+            ))}
+            {data.employees.length>5&&<div style={{fontSize:11,color:"var(--color-text-tertiary)",padding:"4px 0"}}>... و {data.employees.length-5} موظفين إضافيين</div>}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"7px 0 0",borderTop:"0.5px solid var(--color-border-secondary)",fontWeight:500,marginTop:4}}>
+              <span>الإجمالي الصافي</span><span style={{fontFamily:"monospace"}}>{fmtN(data.employees.reduce((s,e)=>s+gNet(e),0))}</span>
+            </div>
+          </div>
+          <div style={{background:"var(--color-background-info)",borderRadius:"var(--border-radius-md)",padding:8,fontSize:11,marginBottom:12,color:"var(--color-text-info)"}}>
+            ⓘ سيتم إنشاء قيد محاسبي تلقائي وإرسال المسير للموافقة من CFO
+          </div>
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setModal(false)}>إلغاء</button>
+            <button onClick={runPayroll} style={{background:"var(--color-background-success)",color:"var(--color-text-success)",borderColor:"var(--color-border-success)"}}>تشغيل المسير ↗</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+// ─── part4.jsx ───
+// ═══════════════════════ TAX & ZATCA ═══════════════════════
+const Tax = ({data,setData}) => {
+  const [tab,setTab]=useState("vat");
+  const [period,setPeriod]=useState("Q1 2025");
+  const retryZ=id=>setData(d=>({...d,invoices:d.invoices.map(i=>i.id===id?{...i,zatca:"cleared"}:i)}));
+
+  const PD={
+    "Q4 2024":{s1:9420000,t1:1413000,s2:980000,p1:3990000,tp1:598500,p2:210000,tp2:31500},
+    "Q1 2025":{s1:10870000,t1:1630500,s2:1530000,p1:4680000,tp1:702000,p2:320000,tp2:48000},
+  };
+  const vd=PD[period]||PD["Q1 2025"];
+  const netVAT=vd.t1-vd.tp1-vd.tp2;
+  const vatOut=data.coa.find(a=>a.code==="2310")?.balance||0;
+  const vatIn=data.coa.find(a=>a.code==="1310")?.balance||0;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"10px 16px",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+          <KPI label="VAT مخرجات مستحق" value={`SAR ${fmtN(vatOut)}`} icon="ti-arrow-up-circle"/>
+          <KPI label="VAT مدخلات قابل للاسترداد" value={`SAR ${fmtN(vatIn)}`} icon="ti-arrow-down-circle"/>
+          <KPI label="WHT مستحق للسداد" value={`SAR ${fmtN(data.coa.find(a=>a.code==="2320")?.balance||0)}`} icon="ti-percentage"/>
+          <KPI label="الزكاة مستحقة" value={`SAR ${fmtN(data.coa.find(a=>a.code==="2400")?.balance||0)}`} icon="ti-moon-stars"/>
+        </div>
+      </div>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["vat","إقرار VAT 003"],["zatca","ZATCA Queue"],["wht","WHT"],["zakat","الزكاة"]]} active={tab} onChange={setTab}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+
+        {tab==="vat"&&(
+          <div>
+            <div style={{display:"flex",gap:6,marginBottom:14}}>
+              {["Q4 2024","Q1 2025"].map(p=>(
+                <button key={p} onClick={()=>setPeriod(p)} style={{fontSize:12,padding:"5px 14px",border:`0.5px solid ${period===p?"var(--color-border-info)":"var(--color-border-secondary)"}`,borderRadius:"var(--border-radius-md)",background:period===p?"var(--color-background-info)":"transparent",color:period===p?"var(--color-text-info)":"var(--color-text-secondary)",cursor:"pointer",fontWeight:period===p?500:400}}>{p}</button>
+              ))}
+            </div>
+            <Card noPad>
+              <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",padding:"7px 14px",background:"var(--color-background-secondary)"}}>
+                {["البيان","المبالغ الخاضعة (SAR)","الضريبة (SAR)"].map((h,i)=><span key={i} style={{fontSize:11,fontWeight:500,color:"var(--color-text-tertiary)",textAlign:i>0?"right":"left"}}>{h}</span>)}
+              </div>
+              <SecHead>المبيعات والمخرجات</SecHead>
+              {[
+                ["المبيعات الخاضعة 15%",vd.s1,vd.t1,false],
+                ["مبيعات صفرية (خارج المملكة)",vd.s2,0,false],
+                ["إجمالي ضريبة المخرجات",vd.s1+vd.s2,vd.t1,true],
+              ].map(([l,a,t,sub])=>(
+                <div key={l} style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",padding:"7px 14px",borderTop:"0.5px solid var(--color-border-tertiary)",background:sub?"var(--color-background-secondary)":"transparent",fontWeight:sub?500:400}}>
+                  <span style={{fontSize:12}}>{l}</span>
+                  <span style={{textAlign:"right",fontFamily:"monospace",fontSize:12}}>{fmtN(a)}</span>
+                  <span style={{textAlign:"right",fontFamily:"monospace",fontSize:12,color:t>0?"var(--color-text-warning)":"var(--color-text-tertiary)"}}>{fmtN(t)}</span>
+                </div>
+              ))}
+              <SecHead>المشتريات والمدخلات</SecHead>
+              {[
+                ["المشتريات الخاضعة 15%",vd.p1,vd.tp1,false],
+                ["الاحتساب العكسي",vd.p2,vd.tp2,false],
+                ["إجمالي ضريبة المدخلات",vd.p1+vd.p2,vd.tp1+vd.tp2,true],
+              ].map(([l,a,t,sub])=>(
+                <div key={l} style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",padding:"7px 14px",borderTop:"0.5px solid var(--color-border-tertiary)",background:sub?"var(--color-background-secondary)":"transparent",fontWeight:sub?500:400}}>
+                  <span style={{fontSize:12}}>{l}</span>
+                  <span style={{textAlign:"right",fontFamily:"monospace",fontSize:12}}>{fmtN(a)}</span>
+                  <span style={{textAlign:"right",fontFamily:"monospace",fontSize:12,color:t>0?"var(--color-text-info)":"var(--color-text-tertiary)"}}>{fmtN(t)}</span>
+                </div>
+              ))}
+              <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",padding:"10px 14px",background:"var(--color-background-warning)",borderTop:"0.5px solid var(--color-border-secondary)",fontWeight:500}}>
+                <span style={{fontSize:13}}>صافي الضريبة المستحقة للسداد</span>
+                <span/>
+                <span style={{textAlign:"right",fontFamily:"monospace",fontSize:14,color:"var(--color-text-warning)"}}>{fmtN(netVAT)}</span>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {tab==="zatca"&&(
+          <div>
+            <div style={{background:"var(--color-background-info)",borderRadius:"var(--border-radius-md)",padding:"10px 14px",marginBottom:12,fontSize:12,display:"flex",gap:8,alignItems:"center"}}>
+              <i className="ti ti-shield-check" style={{fontSize:18,color:"var(--color-text-info)",flexShrink:0}} aria-hidden="true"/>
+              <span>ZATCA Phase 2 — الفوترة الإلكترونية. فواتير B2B تُرسَل فورياً · B2C خلال 24 ساعة · XML موقَّع بـ CSID + QR code</span>
+            </div>
+            <Card noPad>
+              <Tbl rows={data.invoices} cols={[
+                {key:"number",label:"رقم الفاتورة",mono:true},
+                {key:"cust_id",label:"العميل",fn:r=>data.customers.find(c=>c.id===r.cust_id)?.name_ar||"-"},
+                {key:"date",label:"التاريخ"},
+                {key:"total",label:"الإجمالي",r:true,mono:true,fn:r=>fmtN(r.total)},
+                {key:"zatca",label:"حالة ZATCA",fn:r=>r.zatca==="cleared"?<Bdg c="green">معتمد ✓</Bdg>:r.zatca==="pending"?<Bdg c="amber">في الانتظار</Bdg>:<Bdg c="gray">لم يُرسل</Bdg>},
+                {key:"act",label:"",fn:r=>r.zatca==="pending"
+                  ?<button onClick={()=>retryZ(r.id)} style={{fontSize:10,padding:"2px 6px",background:"var(--color-background-success)",color:"var(--color-text-success)",borderColor:"var(--color-border-success)"}}>إرسال الآن ↗</button>
+                  :r.zatca==="cleared"
+                  ?<span style={{fontSize:10,color:"var(--color-text-tertiary)",fontFamily:"monospace"}}>UUID:{r.id.slice(-6)}</span>
+                  :null
+                },
+              ]}/>
+            </Card>
+          </div>
+        )}
+
+        {tab==="wht"&&(
+          <div>
+            <div style={{background:"var(--color-background-warning)",borderRadius:"var(--border-radius-md)",padding:"10px 14px",marginBottom:12,fontSize:12}}>
+              <strong>WHT:</strong> خدمات الإدارة 5% · الخدمات التقنية 5% · الإيجار 5% — المادة 68 من نظام ضريبة الدخل السعودي
+            </div>
+            <Card noPad>
+              <Tbl rows={data.vendor_bills} cols={[
+                {key:"number",label:"رقم الفاتورة",mono:true},
+                {key:"vendor_id",label:"المورد",fn:r=>data.vendors.find(v=>v.id===r.vendor_id)?.name_ar||"-"},
+                {key:"date",label:"التاريخ"},
+                {key:"amount",label:"أساس الاستقطاع",r:true,mono:true,fn:r=>fmtN(r.amount)},
+                {key:"wht",label:"WHT مستقطع",r:true,mono:true,fn:r=>r.wht>0?<strong style={{color:"var(--color-text-danger)"}}>{fmtN(r.wht)}</strong>:"معفى"},
+                {key:"wht_cert",label:"شهادة",fn:r=>r.wht_cert?<Bdg c="teal" sm>{r.wht_cert}</Bdg>:"—"},
+                {key:"status",label:"الحالة",fn:r=><Bdg c={r.status==="posted"?"green":"amber"} sm>{r.status==="posted"?"مسدد":"معلق"}</Bdg>},
+              ]}/>
+            </Card>
+          </div>
+        )}
+
+        {tab==="zakat"&&(
+          <div>
+            <div style={{background:"var(--color-background-info)",borderRadius:"var(--border-radius-md)",padding:"10px 14px",marginBottom:12,fontSize:12}}>
+              الزكاة = 2.5% × (رأس المال + الأرباح المبقاة + صافي الربح − الأصول الثابتة الصافية − الاستثمارات طويلة الأجل)
+            </div>
+            <Card noPad>
+              {[
+                ["رأس المال المدفوع", data.coa.find(a=>a.code==="3100")?.balance||0, "add"],
+                ["الأرباح المبقاة", data.coa.find(a=>a.code==="3200")?.balance||0, "add"],
+                ["صافي الربح الحالي",
+                  (data.coa.filter(a=>a.type==="Revenue").reduce((s,a)=>s+a.balance,0)
+                  -data.coa.filter(a=>a.type==="Expense").reduce((s,a)=>s+a.balance,0)),
+                  "add"
+                ],
+                ["الأصول الثابتة الصافية (مستثنى)",
+                  Math.abs((data.coa.find(a=>a.code==="1500")?.balance||0)+(data.coa.find(a=>a.code==="1510")?.balance||0)),
+                  "deduct"
+                ],
+              ].map(([l,v,t])=>(
+                <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"8px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                  <span style={{color:"var(--color-text-primary)"}}>{l}</span>
+                  <span style={{fontFamily:"monospace",color:t==="deduct"?"var(--color-text-danger)":"var(--color-text-success)"}}>
+                    {t==="deduct"?"-":"+"}SAR {fmtN(Math.abs(v))}
+                  </span>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",padding:"9px 14px",fontWeight:500,fontSize:13,background:"var(--color-background-warning)",borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                <span>وعاء الزكاة التقديري</span>
+                <span style={{fontFamily:"monospace"}}>SAR {fmtN(12800000)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",padding:"10px 14px",fontWeight:500,fontSize:14,background:"var(--color-background-danger)",color:"var(--color-text-danger)"}}>
+                <span>الزكاة المستحقة (2.5%)</span>
+                <span style={{fontFamily:"monospace"}}>SAR {fmtN(12800000*0.025)}</span>
+              </div>
+            </Card>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════ BANKING ═══════════════════════
+const Banking = ({data}) => {
+  const totalSAR=data.bank_accounts.reduce((s,b)=>s+(b.currency==="SAR"?b.balance:b.currency==="USD"?b.balance*3.75:b.balance),0);
+  return(
+    <PRow>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        <KPI label="إجمالي النقدية (معادل SAR)" value={`SAR ${fmtN(totalSAR)}`} up icon="ti-coins" color="#1D9E75"/>
+        <KPI label="عدد الحسابات البنكية" value={data.bank_accounts.length} icon="ti-building-bank"/>
+        <KPI label="أسعار الصرف" value="SAMA API" delta="تحديث يومي تلقائي" up icon="ti-currency-dollar"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        {data.bank_accounts.map(b=>(
+          <div key={b.id} style={{background:"var(--color-background-primary)",border:"0.5px solid var(--color-border-tertiary)",borderRadius:"var(--border-radius-lg)",padding:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+              <div style={{width:32,height:32,borderRadius:8,background:"#E6F1FB",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <i className="ti ti-building-bank" style={{fontSize:16,color:"#378ADD"}} aria-hidden="true"/>
+              </div>
+              <div>
+                <div style={{fontSize:12,fontWeight:500}}>{b.name}</div>
+                <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>{b.bank}</div>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:"var(--color-text-tertiary)",marginBottom:2}}>IBAN</div>
+            <div style={{fontSize:10,fontFamily:"monospace",color:"var(--color-text-secondary)",marginBottom:10,wordBreak:"break-all"}}>{b.iban}</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+              <div>
+                <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>الرصيد الحالي</div>
+                <div style={{fontSize:18,fontWeight:500,fontFamily:"monospace"}}>{fmtN(b.balance)}</div>
+              </div>
+              <Bdg c="gray">{b.currency}</Bdg>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Card title="أسعار الصرف — SAMA" noPad>
+        <Tbl rows={data.fx_rates} cols={[
+          {key:"currency",label:"العملة",fn:r=><Bdg c="blue">{r.currency}</Bdg>},
+          {key:"rate",label:"سعر مقابل SAR",r:true,mono:true,fn:r=>r.rate.toFixed(4)},
+          {key:"inv",label:"SAR / 1 وحدة",r:true,mono:true,fn:r=>(1/r.rate).toFixed(4)},
+          {key:"date",label:"تاريخ السعر"},
+          {key:"src",label:"المصدر",fn:()=><Bdg c="teal" sm>SAMA API</Bdg>},
+        ]}/>
+      </Card>
+    </PRow>
+  );
+};
+
+// ═══════════════════════ APPROVALS ═══════════════════════
+const Approvals = ({data,setData}) => {
+  const approve=id=>setData(d=>({...d,approvals:d.approvals.map(a=>a.id===id?{...a,status:"approved"}:a)}));
+  const reject=id=>setData(d=>({...d,approvals:d.approvals.map(a=>a.id===id?{...a,status:"rejected"}:a)}));
+
+  const TYPE_MAP={
+    purchase_order:["أمر شراء","amber"],
+    payment:["دفعة مالية","red"],
+    payroll:["مسير رواتب","purple"],
+    expense:["مصروف","blue"],
+    credit_note:["إشعار دائن","coral"],
+  };
+
+  const ApCard=({ap})=>{
+    const [lbl,col]=TYPE_MAP[ap.type]||["طلب","gray"];
+    return(
+      <div style={{background:"var(--color-background-primary)",border:`0.5px solid ${ap.status==="pending"?"var(--color-border-warning)":ap.status==="approved"?"var(--color-border-success)":"var(--color-border-danger)"}`,borderRadius:"var(--border-radius-lg)",padding:14,marginBottom:10}}>
+        <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:6,flexWrap:"wrap"}}>
+              <Bdg c={col}>{lbl}</Bdg>
+              <span style={{fontFamily:"monospace",fontSize:12,color:"var(--color-text-secondary)"}}>{ap.ref}</span>
+              <span style={{fontSize:11,color:"var(--color-text-tertiary)"}}>· {ap.date}</span>
+            </div>
+            <div style={{fontSize:13,color:"var(--color-text-secondary)",marginBottom:8}}>{ap.detail}</div>
+            <div style={{display:"grid",gridTemplateColumns:"auto auto auto",gap:16,fontSize:12}}>
+              <div>
+                <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>المبلغ</div>
+                <div style={{fontFamily:"monospace",fontWeight:500,fontSize:14}}>SAR {fmtN(ap.amount)}</div>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>مُقدَّم من</div>
+                <div style={{fontSize:13}}>{ap.requester}</div>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"var(--color-text-tertiary)"}}>مستوى الموافقة</div>
+                <div style={{fontSize:12}}>{ap.level}</div>
+              </div>
+            </div>
+          </div>
+          <div style={{flexShrink:0}}>
+            {ap.status==="pending"?(
+              <div style={{display:"flex",gap:6,flexDirection:"column"}}>
+                <button onClick={()=>approve(ap.id)} style={{fontSize:12,background:"var(--color-background-success)",color:"var(--color-text-success)",borderColor:"var(--color-border-success)",padding:"5px 12px"}}>اعتماد ✓</button>
+                <button onClick={()=>reject(ap.id)} style={{fontSize:12,color:"var(--color-text-danger)",borderColor:"var(--color-border-danger)",padding:"5px 12px"}}>رفض ✗</button>
+              </div>
+            ):(
+              <Bdg c={ap.status==="approved"?"green":"red"}>{ap.status==="approved"?"معتمد ✓":"مرفوض ✗"}</Bdg>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const pending=data.approvals.filter(a=>a.status==="pending");
+  const done=data.approvals.filter(a=>a.status!=="pending");
+
+  return(
+    <PRow>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        <KPI label="طلبات معلقة" value={pending.length} delta="تحتاج قراراً" icon="ti-clock" color="#BA7517"/>
+        <KPI label="إجمالي المبالغ المعلقة" value={`SAR ${fmtN(pending.reduce((s,a)=>s+a.amount,0))}`} icon="ti-coin"/>
+        <KPI label="معتمدة" value={data.approvals.filter(a=>a.status==="approved").length} up icon="ti-circle-check" color="#1D9E75"/>
+        <KPI label="مرفوضة" value={data.approvals.filter(a=>a.status==="rejected").length} icon="ti-circle-x" color="#E24B4A"/>
+      </div>
+      {pending.length>0&&(
+        <div>
+          <div style={{fontSize:12,fontWeight:500,color:"var(--color-text-warning)",marginBottom:8}}>⏳ تنتظر اتخاذ قرار ({pending.length})</div>
+          {pending.map(ap=><ApCard key={ap.id} ap={ap}/>)}
+        </div>
+      )}
+      {done.length>0&&(
+        <div>
+          <div style={{fontSize:12,fontWeight:500,color:"var(--color-text-tertiary)",marginBottom:8}}>المُعالَجة ({done.length})</div>
+          {done.map(ap=><ApCard key={ap.id} ap={ap}/>)}
+        </div>
+      )}
+    </PRow>
+  );
+};
+
+// ═══════════════════════ REPORTS ═══════════════════════
+const Reports = ({data}) => {
+  const [tab,setTab]=useState("pl");
+  const rev  = data.coa.filter(a=>a.type==="Revenue").reduce((s,a)=>s+a.balance,0);
+  const cogs = data.coa.filter(a=>a.sub==="cogs").reduce((s,a)=>s+a.balance,0);
+  const opex = data.coa.filter(a=>a.sub==="opex").reduce((s,a)=>s+a.balance,0);
+  const gp   = rev-cogs;
+  const np   = rev-cogs-opex;
+  const assets= data.coa.filter(a=>a.type==="Asset").reduce((s,a)=>s+a.balance,0);
+  const liab = data.coa.filter(a=>a.type==="Liability").reduce((s,a)=>s+a.balance,0);
+  const equity=data.coa.filter(a=>a.type==="Equity").reduce((s,a)=>s+a.balance,0);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
+      <div style={{padding:"0 16px"}}>
+        <TabBar tabs={[["pl","P&L قائمة الدخل"],["bs","الميزانية العمومية"],["cf","التدفق النقدي"],["kpi","مؤشرات KPI"]]} active={tab} onChange={setTab}/>
+      </div>
+      <div style={{flex:1,overflowY:"auto",padding:16}}>
+
+        {tab==="pl"&&(
+          <Card noPad title="قائمة الدخل — Q1 2025" action={<Bdg c="green">IFRS 15</Bdg>}>
+            <SecHead>الإيرادات</SecHead>
+            {data.coa.filter(a=>a.type==="Revenue").map(a=>(
+              <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                <span style={{color:"var(--color-text-secondary)",paddingRight:12}}>{a.name_ar}</span>
+                <span style={{fontFamily:"monospace"}}>{fmtN(a.balance)}</span>
+              </div>
+            ))}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"7px 14px",fontWeight:500,background:"var(--color-background-secondary)",borderTop:"0.5px solid var(--color-border-secondary)",fontSize:12}}>
+              <span>إجمالي الإيرادات</span><span style={{fontFamily:"monospace"}}>{fmtN(rev)}</span>
+            </div>
+            <SecHead>تكلفة الإيراد</SecHead>
+            {data.coa.filter(a=>a.sub==="cogs").map(a=>(
+              <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                <span style={{color:"var(--color-text-secondary)",paddingRight:12}}>{a.name_ar}</span>
+                <span style={{fontFamily:"monospace"}}>({fmtN(a.balance)})</span>
+              </div>
+            ))}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"8px 14px",fontWeight:500,fontSize:13,background:"#E1F5EE"}}>
+              <span>مجمل الربح — Gross Profit</span>
+              <div>
+                <span style={{fontFamily:"monospace",color:"#0F6E56"}}>{fmtN(gp)}</span>
+                <span style={{fontSize:11,color:"#0F6E56",marginRight:8}}>({Math.round(gp/rev*100)}%)</span>
+              </div>
+            </div>
+            <SecHead>المصروفات التشغيلية</SecHead>
+            {data.coa.filter(a=>a.sub==="opex").map(a=>(
+              <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                <span style={{color:"var(--color-text-secondary)",paddingRight:12}}>{a.name_ar}</span>
+                <span style={{fontFamily:"monospace"}}>({fmtN(a.balance)})</span>
+              </div>
+            ))}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"10px 14px",fontWeight:500,fontSize:14,background:np>0?"#E1F5EE":"#FCEBEB",color:np>0?"#0F6E56":"#791F1F"}}>
+              <span>صافي الربح — Net Profit</span>
+              <div>
+                <span style={{fontFamily:"monospace"}}>{fmtN(np)}</span>
+                <span style={{fontSize:12,marginRight:8}}>({Math.round(np/rev*100)}%)</span>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {tab==="bs"&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <Card noPad title="الأصول — Assets">
+              {["current","fixed"].map(st=>(
+                <div key={st}>
+                  <SecHead>{st==="current"?"أصول متداولة":"أصول ثابتة"}</SecHead>
+                  {data.coa.filter(a=>a.type==="Asset"&&a.sub===st).map(a=>(
+                    <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                      <span style={{color:"var(--color-text-secondary)",paddingRight:10}}>{a.name_ar}</span>
+                      <span style={{fontFamily:"monospace",color:a.balance<0?"var(--color-text-danger)":"inherit"}}>{fmtN(Math.abs(a.balance))}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",padding:"8px 14px",fontWeight:500,background:"var(--color-background-secondary)",fontSize:13,borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                <span>إجمالي الأصول</span><span style={{fontFamily:"monospace"}}>{fmtN(assets)}</span>
+              </div>
+            </Card>
+            <Card noPad title="الالتزامات وحقوق الملكية">
+              {["current","longterm"].map(st=>(
+                <div key={st}>
+                  <SecHead>{st==="current"?"التزامات متداولة":"التزامات غير متداولة"}</SecHead>
+                  {data.coa.filter(a=>a.type==="Liability"&&a.sub===st).map(a=>(
+                    <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                      <span style={{color:"var(--color-text-secondary)",paddingRight:10}}>{a.name_ar}</span>
+                      <span style={{fontFamily:"monospace"}}>{fmtN(a.balance)}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <SecHead>حقوق الملكية</SecHead>
+              {data.coa.filter(a=>a.type==="Equity").map(a=>(
+                <div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                  <span style={{color:"var(--color-text-secondary)",paddingRight:10}}>{a.name_ar}</span>
+                  <span style={{fontFamily:"monospace"}}>{fmtN(a.balance)}</span>
+                </div>
+              ))}
+              <div style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                <span style={{color:"var(--color-text-secondary)",paddingRight:10}}>صافي ربح السنة</span>
+                <span style={{fontFamily:"monospace"}}>{fmtN(np)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",padding:"8px 14px",fontWeight:500,background:"var(--color-background-secondary)",fontSize:13,borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                <span>إجمالي الالتزامات وحقوق الملكية</span>
+                <span style={{fontFamily:"monospace"}}>{fmtN(liab+equity+np)}</span>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {tab==="cf"&&(
+          <Card noPad title="قائمة التدفق النقدي — الطريقة غير المباشرة">
+            {[
+              ["أنشطة التشغيل",[
+                ["صافي الربح",np],
+                ["الإهلاك والاستهلاك",140000],
+                ["التغير في الذمم المدينة",-2800000],
+                ["التغير في الذمم الدائنة",389000],
+                ["التغير في مخصص نهاية الخدمة",124000],
+              ]],
+              ["أنشطة الاستثمار",[
+                ["شراء أصول ثابتة",-350000],
+                ["عائد بيع استثمارات",0],
+              ]],
+              ["أنشطة التمويل",[
+                ["توزيعات أرباح",-500000],
+                ["سداد قروض",0],
+              ]],
+            ].map(([section,items])=>{
+              const tot=items.reduce((s,[,v])=>s+v,0);
+              return(
+                <div key={section}>
+                  <SecHead>{section}</SecHead>
+                  {items.map(([l,v])=>(
+                    <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"5px 14px",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+                      <span style={{color:"var(--color-text-secondary)",paddingRight:12}}>{l}</span>
+                      <span style={{fontFamily:"monospace",color:v<0?"var(--color-text-danger)":"inherit"}}>
+                        {v<0?`(${fmtN(Math.abs(v))})`:fmtN(v)}
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{display:"flex",justifyContent:"space-between",padding:"6px 14px",fontWeight:500,background:"var(--color-background-secondary)",fontSize:12,borderTop:"0.5px solid var(--color-border-secondary)"}}>
+                    <span>صافي {section}</span>
+                    <span style={{fontFamily:"monospace",color:tot<0?"var(--color-text-danger)":"var(--color-text-success)"}}>
+                      {tot<0?`(${fmtN(Math.abs(tot))})`:fmtN(tot)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{display:"flex",justifyContent:"space-between",padding:"10px 14px",fontWeight:500,fontSize:14,background:"var(--color-background-info)"}}>
+              <span>صافي الزيادة في النقدية</span>
+              <span style={{fontFamily:"monospace",color:"var(--color-text-info)"}}>
+                SAR {fmtN(np+140000-2800000+389000+124000-350000-500000)}
+              </span>
+            </div>
+          </Card>
+        )}
+
+        {tab==="kpi"&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+            {[
+              ["هامش الربح الإجمالي",`${Math.round(gp/rev*100)}%`,"مقارنة الميزانية: +3.1pp",true],
+              ["هامش صافي الربح",`${Math.round(np/rev*100)}%`,"مستهدف 20%",np/rev>0.18],
+              ["DSO أيام الاستحقاق","22 يوم","مستهدف: أقل من 30 يوم",true],
+              ["DPO أيام السداد","38 يوم","مستهدف: 45-60 يوم",false],
+              ["نسبة السيولة","2.3x","أعلى من 1.5x ✓",true],
+              ["عائد حقوق الملكية ROE",`${Math.round(np/(equity+np)*100)}%`,"مستهدف 25%",np/(equity+np)>0.2],
+              ["نمو الإيرادات YoY","18%","مقارنة Q1 2024",true],
+              ["تكلفة الإيراد %",`${Math.round(cogs/rev*100)}%`,"مستهدف: أقل من 65%",cogs/rev<0.65],
+              ["نسبة السعودة Nitaqat",`${Math.round(data.employees.filter(e=>e.nationality==="Saudi").length/data.employees.length*100)}%`,"مطابق ✓",true],
+            ].map(([l,v,d,up])=><KPI key={l} label={l} value={v} delta={d} up={up}/>)}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════ AUDIT LOG ═══════════════════════
+const AuditLog = ({data}) => (
+  <PRow>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+      <KPI label="إجمالي الأحداث" value={data.audit_log.length} icon="ti-list-search"/>
+      <KPI label="المستخدمون النشطون" value="4" up icon="ti-user-check" color="#1D9E75"/>
+      <KPI label="آخر عملية" value="منذ 22 دقيقة" delta="سارة الرشيدي" icon="ti-clock"/>
+    </div>
+    <Card noPad>
+      <Tbl rows={data.audit_log} cols={[
+        {key:"time",label:"التوقيت",mono:true,sm:true},
+        {key:"user",label:"المستخدم"},
+        {key:"action",label:"الإجراء",fn:r=><Bdg c={r.action==="APPROVE"?"green":r.action==="POST"?"blue":r.action==="CREATE"?"teal":"gray"} sm>{r.action}</Bdg>},
+        {key:"module",label:"الوحدة",fn:r=><Bdg c="gray" sm>{r.module}</Bdg>},
+        {key:"ref",label:"المرجع",mono:true},
+        {key:"ip",label:"IP",mono:true,sm:true},
+      ]}/>
+    </Card>
+  </PRow>
+);
+
+// ═══════════════════════ SETTINGS ═══════════════════════
+const Settings = ({data}) => (
+  <PRow>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+      <Card title="الكيانات القانونية">
+        {data.entities.map(e=>(
+          <div key={e.id} style={{padding:"10px 0",borderBottom:"0.5px solid var(--color-border-tertiary)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+              <div style={{fontWeight:500,fontSize:13}}>{e.name_ar}</div>
+              <Bdg c="green">نشط</Bdg>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,fontSize:11,color:"var(--color-text-secondary)"}}>
+              <span>رقم ضريبي: {e.vat}</span>
+              <span>سجل: {e.cr}</span>
+              <span>العملة: <Bdg c="blue" sm>{e.currency}</Bdg></span>
+            </div>
+          </div>
+        ))}
+      </Card>
+      <Card title="إعدادات النظام">
+        {[
+          ["رقم التسجيل ZATCA","CSID-2025-ALMAJD-001"],
+          ["السنة المالية","يناير — ديسمبر"],
+          ["العملة الأساسية","SAR — ريال سعودي"],
+          ["معيار المحاسبة","IFRS / معايير سعودية"],
+          ["نسبة VAT","15%"],
+          ["طريقة التقييم","FIFO"],
+          ["GOSI سعودي","9% موظف + 9% شركة"],
+          ["GOSI غير سعودي","2% موظف فقط"],
+          ["Qiwa Integration","مُفعَّل ✓"],
+          ["SARIE Integration","مُفعَّل ✓"],
+          ["SWIFT MT103","مُفعَّل ✓"],
+          ["نسخ احتياطي","يومي — AWS S3 Bahrain"],
+        ].map(([l,v])=>(
+          <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"0.5px solid var(--color-border-tertiary)",fontSize:12}}>
+            <span style={{color:"var(--color-text-secondary)"}}>{l}</span>
+            <span style={{fontFamily:"monospace",fontSize:11,color:"var(--color-text-primary)"}}>{v}</span>
+          </div>
+        ))}
+      </Card>
+    </div>
+    <Card title="مصفوفة الموافقات — Approval Matrix">
+      <Tbl rows={[
+        {module:"أوامر الشراء",l1:"مدير القسم",l2:"مدير المالية",l3:"CFO (>500K)",threshold:"SAR 100,000"},
+        {module:"المدفوعات",l1:"مدير المالية",l2:"CFO",l3:"مجلس الإدارة (>2M)",threshold:"SAR 500,000"},
+        {module:"مسير الرواتب",l1:"مدير HR",l2:"CFO",l3:"—",threshold:"دائماً CFO"},
+        {module:"المصروفات",l1:"مدير القسم",l2:"مدير المالية",l3:"CFO (>50K)",threshold:"SAR 10,000"},
+        {module:"اعتماد العقود",l1:"مدير المبيعات",l2:"CFO",l3:"CEO (>5M)",threshold:"SAR 1,000,000"},
+      ]} cols={[
+        {key:"module",label:"الوحدة"},
+        {key:"l1",label:"المستوى الأول"},
+        {key:"l2",label:"المستوى الثاني"},
+        {key:"l3",label:"المستوى الثالث"},
+        {key:"threshold",label:"حد المستوى 2"},
+      ]}/>
+    </Card>
+  </PRow>
+);
+
+// ─── app.jsx ───
+const META = {
+  dashboard:  ["لوحة التحكم التنفيذية",   "المجموعة الاستشارية · Q1 2025 · SAR"],
+  accounting: ["المحاسبة",                  "القيود · دليل الحسابات · ميزان المراجعة · الأستاذ العام"],
+  sales:      ["المبيعات والفواتير",         "عملاء · فواتير · ZATCA Phase 2 · الاستحقاقات"],
+  purchase:   ["المشتريات",                 "موردون · أوامر شراء · WHT · فواتير الموردين"],
+  projects:   ["إدارة المشاريع",            "تكاليف · ميزانية · ربحية · Timesheets"],
+  hr:         ["HR والرواتب",               "موظفون · GOSI · Qiwa · نهاية الخدمة · مسيرات"],
+  tax:        ["الضرائب والامتثال",          "VAT 003 · ZATCA Phase 2 · WHT · الزكاة"],
+  banking:    ["البنوك وأسعار الصرف",        "حسابات · SARIE · SWIFT · SAMA"],
+  approvals:  ["مصفوفة الموافقات",           "طلبات معلقة · سجل القرارات"],
+  reports:    ["التقارير المالية",           "P&L · الميزانية · التدفق النقدي · KPI"],
+  audit:      ["سجل المراجعة",              "Audit Trail · RBAC · أنشطة المستخدمين"],
+  settings:   ["الإعدادات",                 "كيانات · إعدادات ضريبية · مصفوفة الموافقات"],
+};
+
+export default function App() {
+  const [page, setPage]     = useState("dashboard");
+  const [col, setCol]       = useState(false);
+  const [showN, setShowN]   = useState(false);
+  const [data, setData]     = useState({ ...INIT });
+
+  const unread = data.notifications.filter(n => !n.read).length;
+  const [title, sub] = META[page] || ["ERP", ""];
+
+  const renderPage = () => {
+    const p = { data, setData };
+    switch (page) {
+      case "dashboard":  return <Dashboard  {...p} />;
+      case "accounting": return <Accounting {...p} />;
+      case "sales":      return <Sales      {...p} />;
+      case "purchase":   return <Purchase   {...p} />;
+      case "projects":   return <Projects   {...p} />;
+      case "hr":         return <HR         {...p} />;
+      case "tax":        return <Tax        {...p} />;
+      case "banking":    return <Banking    {...p} />;
+      case "approvals":  return <Approvals  {...p} />;
+      case "reports":    return <Reports    {...p} />;
+      case "audit":      return <AuditLog   {...p} />;
+      case "settings":   return <Settings   {...p} />;
+      default:           return <Dashboard  {...p} />;
+    }
+  };
+
+  return (
+    <div
+      onClick={() => showN && setShowN(false)}
+      style={{ display:"flex", height:"100vh", background:"var(--color-background-tertiary)", fontFamily:"var(--font-sans)", overflow:"hidden", position:"relative" }}
+    >
+      <Sidebar active={page} onNav={p => { setPage(p); setShowN(false); }} col={col} />
+
+      <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden", minWidth:0 }}>
+        <Topbar
+          title={title} sub={sub}
+          onToggle={() => setCol(c => !c)}
+          nCount={unread}
+          onNotif={e => { e.stopPropagation(); setShowN(s => !s); }}
+        />
+        <div style={{ flex:1, overflowY:"auto" }}>
+          {renderPage()}
+        </div>
+      </div>
+
+      {showN && (
+        <div onClick={e => e.stopPropagation()}>
+          <NotifPanel data={data} setData={setData} onClose={() => setShowN(false)} />
+        </div>
+      )}
+    </div>
+  );
+}
